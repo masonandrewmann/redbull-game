@@ -1,3 +1,5 @@
+// this is the redbull arcade machine microcontroller code
+
 int interval = 50;
 int targetTime = 0;
 
