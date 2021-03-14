@@ -25,6 +25,8 @@ class Fighter {
   float comboTimer;
   int comboTimeout;
 
+  boolean direction; //direction facing: true is right, false is left
+
   //action state variables
   boolean punchRegistered;
   boolean kickRegistered;
@@ -61,8 +63,8 @@ class Fighter {
     vel = new PVector(0, 0);
     acc = new PVector(0, 0);
 
-    groundHeight = y_;
-    mass = 30;
+    groundHeight = y_ - 50;
+    mass = 10;
 
     frameSpeed = 0.2;
     // Starting at the beginning
@@ -73,11 +75,18 @@ class Fighter {
     currAnim = idleRight;
     punchRegistered = false;
     kickRegistered = false;
+    direction = true;
   }
 
   void display() {
     // We must convert the float index to an int first!
     int imageIndex = int(index);
+    // println("hi");
+    // println(currAnim);
+    // println(currAnim.length);
+    // println(index);
+    // println(imageIndex);
+    // println("done");
     image(currAnim[imageIndex], pos.x, pos.y);
   }
 
@@ -96,10 +105,17 @@ class Fighter {
     // Move the index forward in the animation sequence
     index += frameSpeed;
     // If we are at the end, go back to the beginning
+    // println("next");
+    // println(index);
+    // println(currAnim.length);
+    // println("nextDone");
+
+
     if (index >= currAnim.length) {
       // We could just say index = 0
       // but this is slightly more accurate
-      index -= currAnim.length;
+      // index -= currAnim.length;
+      index = 0;
     }
   }
 
@@ -116,34 +132,63 @@ class Fighter {
     if (left == 1){
       vel.x = -8;
       currAnim = walkLeft;
-      //index = 0;
+      direction = false;
+      // index = 0;
     } else if (right == 1){
       vel.x = 8;
       currAnim = walkRight;
+      direction = true;
       //index = 0;
     } else {
       vel.x = 0;
-      currAnim = idleRight;
+      if(direction){
+        currAnim = idleRight;
+      } else {
+        currAnim = idleLeft;
+      }
       //index = 0;
     }
 
     //action
     if (punch == 1){
-      currAnim = punchRight;
-      index = 0;
+      if (direction){
+        currAnim = punchRight;
+      } else {
+        currAnim = punchLeft;
+      }
+      // index = 0;
     } else if (kick == 1){
-      currAnim = kickRight;
-      index = 0;
-    } else if (down == 1){
-      currAnim = idleRight;
-      acc.x = acc.x - vel.x/2;
-      index = 0;
-    } else if (up == 1){
-      currAnim = idleRight;
-      if (pos.y == groundHeight) vel.y = -30;
+      if (direction){
+        currAnim = kickRight;
+      } else {
+        currAnim = kickLeft;
+      }
+      // index = 0;s
+    // } else if (down == 1){
+    //   currAnim = idleRight;
+    //   acc.x = acc.x - vel.x/2;
+    //   index = 0;
+    }
+    if (up == 1){
+      if (direction){
+        currAnim = jumpRight;
+      } else {
+        currAnim = jumpLeft;
+      }
+      // index = 0;
+
+      if (pos.y == groundHeight) vel.y = -16;
     }
 
-    //reset action variables
+    if (pos.y < groundHeight){
+      if (direction){
+        currAnim = jumpRight;
+      } else {
+        currAnim = jumpLeft;
+      }
+    }
+
+    // //reset action variables
     if (punch == 0 && punchRegistered) punchRegistered = false;
     if (kick == 0 && kickRegistered) kickRegistered = false;
   }

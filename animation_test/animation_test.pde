@@ -1,7 +1,4 @@
-// Daniel Shiffman //<>//
-// Hanukkah 2011
-// 8 nights of Processing examples
-// http://www.shiffman.net
+
 import processing.serial.*;
 
 Serial myPort;  // Create object from Serial class

@@ -87,11 +87,60 @@ void loadAssets(){
   animations[9] = jumpRight;
 
   // Make Fighter object
-  fighter = new Fighter(animations, 100, 500);
+  fighter = new Fighter(animations, 100, 0);
 }
 
 void movieEvent(Movie m) {
   m.read();
+}
+
+void keyPressed(){
+  if (key == 'z'){
+    println("punch");
+    inputs[4] = 1;
+  } else if (key == 'x'){
+    inputs[5] = 1;
+    println("kick");
+  }
+  if (key == CODED) {
+    if (keyCode == LEFT){
+      inputs[0] = 1;
+    }
+    if (keyCode == RIGHT){
+      inputs[1] = 1;
+    }
+    if (keyCode == UP){
+      inputs[2] = 1;
+    }
+    if (keyCode == DOWN){
+      inputs[3] = 1;
+    }
+  }
+}
+
+void keyReleased(){
+    if (key == 'z'){
+    println("punch");
+    inputs[4] = 0;
+  } else if (key == 'x'){
+    inputs[5] = 0;
+    println("kick");
+  }
+
+  if (key == CODED) {
+    if (keyCode == LEFT){
+      inputs[0] = 0;
+    }
+    if (keyCode == RIGHT){
+      inputs[1] = 0;
+    }
+    if (keyCode == UP){
+      inputs[2] = 0;
+    }
+    if (keyCode == DOWN){
+      inputs[3] = 0;
+    }
+  }
 }
 
 void setup() {
@@ -107,23 +156,21 @@ void setup() {
 
 void draw(){
   image(background, 0, 0);
-  fill(255);
-  rect(300, 300, 300, 300);
     //read inputs from arduino
-    if ( myPort.available() > 0)
-      {  // If data is available,
+    // if ( myPort.available() > 0)
+    //   {  // If data is available,
 
-          val = myPort.readStringUntil('\n');       // read it and store it in val
-          //println(val);
-          if (val != null){
-            list = split(val, "a");
-            for (int i = 0; i < list.length-1; i++){
-              inputs[i] = Integer.parseInt(list[i]);
-            }
-            //println(inputs);
-            //println("END PACKET");
-          }
-    }
+    //       val = myPort.readStringUntil('\n');       // read it and store it in val
+    //       //println(val);
+    //       if (val != null){
+    //         list = split(val, "a");
+    //         for (int i = 0; i < list.length-1; i++){
+    //           inputs[i] = Integer.parseInt(list[i]);
+    //         }
+    //         //println(inputs);
+    //         //println("END PACKET");
+    //       }
+    // }
 
   // Display, cycle, and move all the animation objects
     fighter.decideAction(inputs);
