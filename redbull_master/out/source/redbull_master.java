@@ -1,5 +1,24 @@
-import processing.video.*;
-import processing.serial.*;
+import processing.core.*; 
+import processing.data.*; 
+import processing.event.*; 
+import processing.opengl.*; 
+
+import processing.video.*; 
+import processing.serial.*; 
+
+import java.util.HashMap; 
+import java.util.ArrayList; 
+import java.io.File; 
+import java.io.BufferedReader; 
+import java.io.PrintWriter; 
+import java.io.InputStream; 
+import java.io.OutputStream; 
+import java.io.IOException; 
+
+public class redbull_master extends PApplet {
+
+
+
 
 //fetching input data from microcontroller
 Serial myPort;  // Create object from Serial class
@@ -36,7 +55,7 @@ PImage[] winningMove3 = new PImage[12];
 PImage[] winningMove4 = new PImage[13];
 
 
-void loadAssets(){
+public void loadAssets(){
   //load the MP4s
   background = new Movie(this, "0_BACKGROUND/BACKGROUND.mp4");
   callToActionScreen = new Movie(this, "0_CALL_TO_ACTION_SCREEN/CALL_TO_ACTION_SCREEN.mp4");
@@ -50,42 +69,33 @@ void loadAssets(){
   //load the PNGs
   for (int i = 0; i < 7; i++){
     walkLeft[i] = loadImage("1_LEFT_WALK/LEFT_WALK_FRAME_" + (i+1) + ".png");
-    walkRight[i] = loadImage("1_RIGHT_WALK/RIGHT_WALK_FRAME_" + (i+1) + ".png");
-    kickLeft[i] = loadImage("1_LEFT_KICK/LEFT_KICK_FRAME_" + (i+1) + ".png");
-    kickRight[i] = loadImage("1_RIGHT_KICK/RIGHT_KICK_FRAME_" + (i+1) + ".png");
-    punchLeft[i] = loadImage("1_LEFT_PUNCH/LEFT_PUNCH_FRAME_" + (i+1) + ".png");
-    punchRight[i] = loadImage("1_RIGHT_PUNCH/RIGHT_PUNCH_FRAME_" + (i+1) + ".png");
-    jumpLeft[i] = loadImage("1_LEFT_JUMP/LEFT_JUMP_FRAME_" + (i+1) + ".png");
-    jumpRight[i] = loadImage("1_RIGHT_JUMP/RIGHT_JUMP_FRAME_" + (i+1) + ".png");
-  }
-  for (int i = 0; i < 2, i++){
-    idleLeft[i] = loadImage("1_LEFT_IDLE/LEFT_IDLE_FRAME_" + (i+1) + ".png");
-    idleRight[i] = loadImage("1_RIGHT_IDLE/RIGHT_IDLE_FRAME_" + (i+1) + ".png");
-  }
-  for (int i = 0; i < 12; i++){
-    winningMove1[i] = loadImage("6_WINNING_MOVE_1/PNG_FOLDER/WINNING_MOVE_1_FRAME_" + (i+1) + ".png");
-    winningMove2[i] = loadImage("6_WINNING_MOVE_2/PNG_FOLDER/WINNING_MOVE_2_FRAME_" + (i+1) + ".png");
-    winningMove3[i] = loadImage("6_WINNING_MOVE_3/PNG_FOLDER/WINNING_MOVE_3s_FRAME_" + (i+1) + ".png");
-  }
-  for (int i = 0; i <13; i++){
-        winningMove4[i] = loadImage("6_WINNING_MOVE_4/PNG_FOLDER/WINNING_MOVE_4_FRAME_" + (i+1) + ".png");
   }
 
 }
 
-void setup() {
-  size(1920, 1080);
+public void setup() {
+  
   loadAssets();
   // myMovie = new Movie(this, "BACKGROUND.mp4");
   // myMovie.loop();
 }
 
-void draw(){
+public void draw(){
   // image(myMovie, 0, 0);
   //fill(255);
   rect(300, 300, 300, 300);
 }
 
-void movieEvent(Movie m) {
+public void movieEvent(Movie m) {
   m.read();
+}
+  public void settings() {  size(1920, 1080); }
+  static public void main(String[] passedArgs) {
+    String[] appletArgs = new String[] { "redbull_master" };
+    if (passedArgs != null) {
+      PApplet.main(concat(appletArgs, passedArgs));
+    } else {
+      PApplet.main(appletArgs);
+    }
+  }
 }
