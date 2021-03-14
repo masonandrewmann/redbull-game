@@ -50,8 +50,8 @@ void setup() {
     idle[i].copy(idleMaster, i * idleMaster.width / 4, 0, idleMaster.width / 4, idleMaster.height, 0, 0, idleMaster.width / 4, idleMaster.height);
     idle[i].resize(idle[i].width * scaleVal, idle[i].height * scaleVal);
   }
- 
-  
+
+
   //create image array for walkRight
   walkMaster = loadImage("Character/RIGHT/SMS_Ranger_Walk_2_strip4.png");
   for (int i = 0; i < walkRight.length; i++){
@@ -62,7 +62,7 @@ void setup() {
   //create image array for walkLeft
   for (int i = 0; i < walkLeft.length; i++){
     walkLeft[i] = createImage(walkRight[i].width, walkRight[i].height, ARGB);
-    for(int j = 0 ; j < walkRight[i].width; j++){       
+    for(int j = 0 ; j < walkRight[i].width; j++){
       for(int k = 0; k < walkRight[i].height; k++){
         walkLeft[i].set(walkRight[i].width - 1 - j, k, walkRight[i].get(j, k));
       }
@@ -73,19 +73,19 @@ void setup() {
   for(int i = 0; i < kickOne.length; i++){
     kickOne[i].resize(kickOne[i].width * scaleVal, kickOne[i].height * scaleVal);
   }
-  
+
   //create image array for punchOne
   punchOne[0] = loadImage("Character/PUNCH1/PUNCH1.png");
   for(int i = 0; i < punchOne.length; i++){
     punchOne[i].resize(punchOne[i].width * scaleVal, punchOne[i].height * scaleVal);
   }
-  
+
   //create image array for crouch
   crouch[0] = loadImage("Character/DOWN/SMS_Ranger_Get_Up.png");
     for(int i = 0; i < crouch.length; i++){
     crouch[i].resize(crouch[i].width * scaleVal, crouch[i].height * scaleVal);
   }
-  
+
 
   //set up animations array for fighter
   animations[0] = idle;
@@ -97,15 +97,15 @@ void setup() {
   animations[6] = kickTwo;
   animations[7] = jump;
   animations[8] = crouch;
-  
+
   // Make Fighter object
   fighter = new Fighter(animations, 100, 500);
-  
+
   //define other visual assets
   bg = loadImage("Background/background.png");
   bg.resize(width, height);
   winner = loadImage("Foreground/winner.png");
-  
+
   //initialize serial comm
   String portName = Serial.list()[1]; //change the 0 to a 1 or 2 etc. to match your port
   myPort = new Serial(this, portName, 9600);
@@ -116,9 +116,9 @@ void draw() {
   background(bg);
 
   //read inputs from arduino
-    if ( myPort.available() > 0) 
+    if ( myPort.available() > 0)
       {  // If data is available,
-        
+
           val = myPort.readStringUntil('\n');       // read it and store it in val
           //println(val);
           if (val != null){
@@ -129,7 +129,8 @@ void draw() {
             //println(inputs);
             //println("END PACKET");
           }
-    } 
+    }
+
   // Display, cycle, and move all the animation objects
     fighter.decideAction(inputs);
     fighter.move();
@@ -143,5 +144,5 @@ void draw() {
       comboSigTime = millis() + comboSigTimeout;
     }
     if (millis() > comboSigTime) comboSent = false;
-     myPort.clear(); 
+     myPort.clear();
 }

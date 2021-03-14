@@ -35,6 +35,9 @@ PImage[] winningMove2 = new PImage[12];
 PImage[] winningMove3 = new PImage[12];
 PImage[] winningMove4 = new PImage[13];
 
+//array of all animations arrays for our fighter
+PImage[][] animations = new PImage[10][];
+
 
 void loadAssets(){
   //load the MP4s
@@ -71,21 +74,69 @@ void loadAssets(){
         winningMove4[i] = loadImage("6_WINNING_MOVE_4/PNG_FOLDER/WINNING_MOVE_4_FRAME_" + (i+1) + ".png");
   }
 
+  //set up animations array for fighter
+  animations[0] = idleLeft;
+  animations[1] = idleRight;
+  animations[2] = walkLeft;
+  animations[3] = walkRight;
+  animations[4] = punchLeft;
+  animations[5] = punchRight;
+  animations[6] = kickLeft;
+  animations[7] = kickRight;
+  animations[8] = jumpLeft;
+  animations[9] = jumpRight;
+
+  // Make Fighter object
+  fighter = new Fighter(animations, 100, 500);
+}
+
+void movieEvent(Movie m) {
+  m.read();
 }
 
 void setup() {
   size(1920, 1080);
   loadAssets();
-  // myMovie = new Movie(this, "BACKGROUND.mp4");
-  // myMovie.loop();
+
+  //initialize serial comm
+  String portName = Serial.list()[1]; //change the 0 to a 1 or 2 etc. to match your port
+  myPort = new Serial(this, portName, 9600);
+
+  background.loop();
 }
 
 void draw(){
-  // image(myMovie, 0, 0);
-  //fill(255);
+  image(background, 0, 0);
+  fill(255);
   rect(300, 300, 300, 300);
-}
+    //read inputs from arduino
+    if ( myPort.available() > 0)
+      {  // If data is available,
 
-void movieEvent(Movie m) {
-  m.read();
+          val = myPort.readStringUntil('\n');       // read it and store it in val
+          //println(val);
+          if (val != null){
+            list = split(val, "a");
+            for (int i = 0; i < list.length-1; i++){
+              inputs[i] = Integer.parseInt(list[i]);
+            }
+            //println(inputs);
+            //println("END PACKET");
+          }
+    }
+
+  // Display, cycle, and move all the animation objects
+    fighter.decideAction(inputs);
+    fighter.move();
+    fighter.next();
+    fighter.display();
+    fighter.comboCheck();
+    if(fighter.comboState == 4 && !comboSent){
+      myPort.clear();
+      myPort.write("c");
+      comboSent = true;
+      comboSigTime = millis() + comboSigTimeout;
+    }
+    if (millis() > comboSigTime) comboSent = false;
+     myPort.clear();
 }

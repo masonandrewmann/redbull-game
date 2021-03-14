@@ -10,54 +10,60 @@ class Fighter {
   PVector vel;      //velocity of fighter
   PVector acc;      //acceleration of fighter
   int mass;         //mass of fighter
-  
+
   float groundHeight; // y value for ground
 
   // The index into the array is a float!
   // This allows us to vary the speed of the animation
   // It will have to be converted to an int before the actual image is displayed
-  float index; 
-  
+  float index;
+
   float frameSpeed; //animation speed
   PImage[] currAnim; //animation to draw
 
   int comboState;
   float comboTimer;
   int comboTimeout;
-  
+
   //action state variables
   boolean punchRegistered;
   boolean kickRegistered;
-  
+
   // The array of images
-  PImage[] idle;
+  PImage[] idleLeft;
+  PImage[] idleRight;
   PImage[] walkLeft;
   PImage[] walkRight;
-  PImage[] punchOne;
-  PImage[] punchTwo;
-  PImage[] kickOne;
-  PImage[] kickTwo;
-  PImage[] jump;
-  PImage[] crouch;
-  
-  
+  PImage[] punchLeft;
+  PImage[] punchRight;
+  PImage[] kickLeft;
+  PImage[] kickRight;
+  PImage[] jumpLeft;
+  PImage[] jumpRight;
+  PImage[] combo1;
+  PImage[] combo2;
+  PImage[] combo3;
+  PImage[] combo4;
+
+
   Fighter(PImage[][] animations, float x_, float y_) {
-    idle = animations[0];
-    walkLeft = animations[1];
-    walkRight = animations[2];
-    punchOne = animations[3];
-    punchTwo = animations[4];
-    kickOne = animations[5];
-    kickTwo = animations[6];
-    jump = animations[7];
-    crouch = animations[8];
+    idleLeft = animations[0];
+    idleRight = animations[1];
+    walkLeft = animations[2];
+    walkRight = animations[3];
+    punchLeft = animations[4];
+    punchRight = animations[5];
+    kickLeft = animations[6];
+    kickRight = animations[7];
+    jumpLeft = animations[8];
+    jumpRight = animations[9];
     pos = new PVector(x_, y_);
     vel = new PVector(0, 0);
     acc = new PVector(0, 0);
-    
+
     groundHeight = y_;
     mass = 30;
-    
+
     frameSpeed = 0.2;
     // Starting at the beginning
     index = 0;
@@ -94,9 +100,9 @@ class Fighter {
       // We could just say index = 0
       // but this is slightly more accurate
       index -= currAnim.length;
-    } 
+    }
   }
-  
+
   void decideAction(int[] inputs){
     // inputs = [LEFT, RIGHT, UP, DOWN, PUNCH, KICK]
     int left = inputs[0];
@@ -105,7 +111,7 @@ class Fighter {
     int down = inputs[3];
     int punch = inputs[4];
     int kick = inputs[5];
-    
+
     //movement
     if (left == 1){
       vel.x = -8;
@@ -120,7 +126,7 @@ class Fighter {
       currAnim = idle;
       //index = 0;
     }
-    
+
     //action
     if (punch == 1){
       currAnim = punchOne;
@@ -136,18 +142,18 @@ class Fighter {
       currAnim = idle;
       if (pos.y == groundHeight) vel.y = -30;
     }
-    
+
     //reset action variables
     if (punch == 0 && punchRegistered) punchRegistered = false;
     if (kick == 0 && kickRegistered) kickRegistered = false;
   }
-  
+
   void applyGrav(){
     PVector gravity = new PVector(0, 0.1 * mass);
     //PVector f = PVector.div(gravity, mass);
     acc.add(gravity);
   }
-  
+
   void comboCheck(){
     if(comboState == 4){
       text("COMBO COMPLETED", 10, 100);
@@ -164,7 +170,7 @@ class Fighter {
         textSize(100);
         //text("State 0", 10, 100);
       break;
-      
+
       case 1: //p
         if (millis() > comboTimer){
           comboState = 0;
@@ -180,7 +186,7 @@ class Fighter {
         textSize(100);
         //text("State 1", 10, 100);
       break;
-      
+
       case 2: //pk
         if (millis() > comboTimer){
           comboState = 0;
@@ -196,7 +202,7 @@ class Fighter {
         textSize(100);
         //text("State 2", 10, 100);
       break;
-      
+
       case 3: //pkk
         if (millis() > comboTimer){
           comboState = 0;
@@ -212,7 +218,7 @@ class Fighter {
         textSize(100);
         //text("State 3", 10, 100);
       break;
-      
+
       case 4: //pkkp COMBO COMPLETED!
         textSize(100);
         //text("COMBO COMPLETED", 10, 100);
