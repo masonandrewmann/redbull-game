@@ -8,7 +8,7 @@ String[] list;
 int inputs[] = {0, 0, 0, 0, 0, 0}; //button inputs from arduino
 
 //assets
-// Fighter fighter;    //our fighter
+Fighter fighter;    //our fighter
 Movie background;   //background image
 Movie callToActionScreen; //intro screen
 Movie winScreen;
@@ -61,7 +61,7 @@ void loadAssets(){
     jumpLeft[i] = loadImage("1_LEFT_JUMP/LEFT_JUMP_FRAME_" + (i+1) + ".png");
     jumpRight[i] = loadImage("1_RIGHT_JUMP/RIGHT_JUMP_FRAME_" + (i+1) + ".png");
   }
-  for (int i = 0; i < 2, i++){
+  for (int i = 0; i < 2; i++){
     idleLeft[i] = loadImage("1_LEFT_IDLE/LEFT_IDLE_FRAME_" + (i+1) + ".png");
     idleRight[i] = loadImage("1_RIGHT_IDLE/RIGHT_IDLE_FRAME_" + (i+1) + ".png");
   }
@@ -126,17 +126,17 @@ void draw(){
     }
 
   // Display, cycle, and move all the animation objects
-    fighter.decideAction(inputs);
-    fighter.move();
-    fighter.next();
-    fighter.display();
-    fighter.comboCheck();
-    if(fighter.comboState == 4 && !comboSent){
-      myPort.clear();
-      myPort.write("c");
-      comboSent = true;
-      comboSigTime = millis() + comboSigTimeout;
-    }
-    if (millis() > comboSigTime) comboSent = false;
-     myPort.clear();
+    // fighter.decideAction(inputs);
+    // fighter.move();
+    // fighter.next();
+    // fighter.display();
+    // fighter.comboCheck();
+    // if(fighter.comboState == 4 && !comboSent){
+    //   myPort.clear();
+    //   myPort.write("c");
+    //   comboSent = true;
+    //   comboSigTime = millis() + comboSigTimeout;
+    // }
+    // if (millis() > comboSigTime) comboSent = false;
+    //  myPort.clear();
 }
