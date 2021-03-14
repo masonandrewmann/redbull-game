@@ -73,21 +73,21 @@ public void loadAssets(){
   for (int i = 0; i < 7; i++){
     walkLeft[i] = loadImage("1_LEFT_WALK/LEFT_WALK_FRAME_" + (i+1) + ".png");
     walkRight[i] = loadImage("1_RIGHT_WALK/RIGHT_WALK_FRAME_" + (i+1) + ".png");
-    kickLeft[i] = loadImage("1_LEFT_KICK/LEFT_KICK_FRAME_" + (i+1) + ".png");
-    kickRight[i] = loadImage("1_RIGHT_KICK/RIGHT_KICK_FRAME_" + (i+1) + ".png");
-    punchLeft[i] = loadImage("1_LEFT_PUNCH/LEFT_PUNCH_FRAME_" + (i+1) + ".png");
-    punchRight[i] = loadImage("1_RIGHT_PUNCH/RIGHT_PUNCH_FRAME_" + (i+1) + ".png");
-    jumpLeft[i] = loadImage("1_LEFT_JUMP/LEFT_JUMP_FRAME_" + (i+1) + ".png");
-    jumpRight[i] = loadImage("1_RIGHT_JUMP/RIGHT_JUMP_FRAME_" + (i+1) + ".png");
+    kickLeft[i] = loadImage("2_LEFT_KICK/LEFT_KICK_FRAME_" + (i+1) + ".png");
+    kickRight[i] = loadImage("2_RIGHT_KICK/RIGHT_KICK_FRAME_" + (i+1) + ".png");
+    punchLeft[i] = loadImage("3_LEFT_PUNCH/LEFT_PUNCH_FRAME_" + (i+1) + ".png");
+    punchRight[i] = loadImage("3_RIGHT_PUNCH/RIGHT_PUNCH_FRAME_" + (i+1) + ".png");
+    jumpLeft[i] = loadImage("4_LEFT_JUMP/LEFT_JUMP_FRAME_" + (i+1) + ".png");
+    jumpRight[i] = loadImage("4_RIGHT_JUMP/RIGHT_JUMP_FRAME_" + (i+1) + ".png");
   }
   for (int i = 0; i < 2; i++){
-    idleLeft[i] = loadImage("1_LEFT_IDLE/LEFT_IDLE_FRAME_" + (i+1) + ".png");
-    idleRight[i] = loadImage("1_RIGHT_IDLE/RIGHT_IDLE_FRAME_" + (i+1) + ".png");
+    idleLeft[i] = loadImage("5_LEFT_IDLE/LEFT_IDLE_FRAME_" + (i+1) + ".png");
+    idleRight[i] = loadImage("5_RIGHT_IDLE/RIGHT_IDLE_FRAME_" + (i+1) + ".png");
   }
   for (int i = 0; i < 12; i++){
     winningMove1[i] = loadImage("6_WINNING_MOVE_1/PNG_FOLDER/WINNING_MOVE_1_FRAME_" + (i+1) + ".png");
     winningMove2[i] = loadImage("6_WINNING_MOVE_2/PNG_FOLDER/WINNING_MOVE_2_FRAME_" + (i+1) + ".png");
-    winningMove3[i] = loadImage("6_WINNING_MOVE_3/PNG_FOLDER/WINNING_MOVE_3s_FRAME_" + (i+1) + ".png");
+    winningMove3[i] = loadImage("6_WINNING_MOVE_3/PNG_FOLDER/WINNING_MOVE_3_FRAME_" + (i+1) + ".png");
   }
   for (int i = 0; i <13; i++){
         winningMove4[i] = loadImage("6_WINNING_MOVE_4/PNG_FOLDER/WINNING_MOVE_4_FRAME_" + (i+1) + ".png");
@@ -145,10 +145,10 @@ public void draw(){
     }
 
   // Display, cycle, and move all the animation objects
-    // fighter.decideAction(inputs);
-    // fighter.move();
-    // fighter.next();
-    // fighter.display();
+    fighter.decideAction(inputs);
+    fighter.move();
+    fighter.next();
+    fighter.display();
     // fighter.comboCheck();
     // if(fighter.comboState == 4 && !comboSent){
     //   myPort.clear();
@@ -293,7 +293,7 @@ class Fighter {
     comboState = 0;
     comboTimer = 0;
     comboTimeout = 1000;
-    currAnim = idle;
+    currAnim = idleRight;
     punchRegistered = false;
     kickRegistered = false;
   }
@@ -338,7 +338,7 @@ class Fighter {
     //movement
     if (left == 1){
       vel.x = -8;
-      currAnim = walkRight;
+      currAnim = walkLeft;
       //index = 0;
     } else if (right == 1){
       vel.x = 8;
@@ -346,23 +346,23 @@ class Fighter {
       //index = 0;
     } else {
       vel.x = 0;
-      currAnim = idle;
+      currAnim = idleRight;
       //index = 0;
     }
 
     //action
     if (punch == 1){
-      currAnim = punchOne;
+      currAnim = punchRight;
       index = 0;
     } else if (kick == 1){
-      currAnim = kickOne;
+      currAnim = kickRight;
       index = 0;
     } else if (down == 1){
-      currAnim = crouch;
+      currAnim = idleRight;
       acc.x = acc.x - vel.x/2;
       index = 0;
     } else if (up == 1){
-      currAnim = idle;
+      currAnim = idleRight;
       if (pos.y == groundHeight) vel.y = -30;
     }
 
@@ -445,7 +445,7 @@ class Fighter {
       case 4: //pkkp COMBO COMPLETED!
         textSize(100);
         //text("COMBO COMPLETED", 10, 100);
-        image(winner, 100, 100);
+        // image(winner, 100, 100);
         if (millis() > comboTimer + 2000){
           comboState = 0;
         }

@@ -70,7 +70,7 @@ class Fighter {
     comboState = 0;
     comboTimer = 0;
     comboTimeout = 1000;
-    currAnim = idle;
+    currAnim = idleRight;
     punchRegistered = false;
     kickRegistered = false;
   }
@@ -115,7 +115,7 @@ class Fighter {
     //movement
     if (left == 1){
       vel.x = -8;
-      currAnim = walkRight;
+      currAnim = walkLeft;
       //index = 0;
     } else if (right == 1){
       vel.x = 8;
@@ -123,23 +123,23 @@ class Fighter {
       //index = 0;
     } else {
       vel.x = 0;
-      currAnim = idle;
+      currAnim = idleRight;
       //index = 0;
     }
 
     //action
     if (punch == 1){
-      currAnim = punchOne;
+      currAnim = punchRight;
       index = 0;
     } else if (kick == 1){
-      currAnim = kickOne;
+      currAnim = kickRight;
       index = 0;
     } else if (down == 1){
-      currAnim = crouch;
+      currAnim = idleRight;
       acc.x = acc.x - vel.x/2;
       index = 0;
     } else if (up == 1){
-      currAnim = idle;
+      currAnim = idleRight;
       if (pos.y == groundHeight) vel.y = -30;
     }
 
@@ -222,7 +222,7 @@ class Fighter {
       case 4: //pkkp COMBO COMPLETED!
         textSize(100);
         //text("COMBO COMPLETED", 10, 100);
-        image(winner, 100, 100);
+        // image(winner, 100, 100);
         if (millis() > comboTimer + 2000){
           comboState = 0;
         }
