@@ -55,7 +55,10 @@ PImage[] winningMove3 = new PImage[12];
 PImage[] winningMove4 = new PImage[13];
 
 //array of all animations arrays for our fighter
-PImage[][] animations = new PImage[10][];
+PImage[][] animations = new PImage[14][];
+
+//keeping track of what part of the game we're in
+int gameState = 0; //0 = call to action; 1 = gameplay; 2 = win; 3 = try again;
 
 
 public void loadAssets(){
@@ -104,6 +107,10 @@ public void loadAssets(){
   animations[7] = kickRight;
   animations[8] = jumpLeft;
   animations[9] = jumpRight;
+  animations[10] = winningMove1;
+  animations[11] = winningMove2;
+  animations[12] = winningMove3;
+  animations[13] = winningMove4;
 
   // Make Fighter object
   fighter = new Fighter(animations, 100, 0);
@@ -114,6 +121,11 @@ public void movieEvent(Movie m) {
 }
 
 public void keyPressed(){
+  if (gameState == 0){
+    gameState = 1;
+  } else if (gameState == 3){
+    gameState = 0;
+  }
   if (key == 'z'){
     println("punch");
     inputs[4] = 1;
@@ -171,10 +183,41 @@ public void setup() {
   myPort = new Serial(this, portName, 9600);
 
   background.loop();
+  callToActionScreen.loop();
 }
 
 public void draw(){
-  image(background, 0, 0);
+  switch (gameState){
+    case 0:
+      image(callToActionScreen, 0, 0);
+    break;
+
+    case 1:
+      image(background, 0, 0);
+      // Display, cycle, and move all the animation objects
+      fighter.decideAction(inputs);
+      fighter.move();
+      fighter.next();
+      fighter.display();
+      fighter.comboCheck();
+      break;
+
+    case 2:
+      image(background, 0, 0);
+      fighter.move();
+      fighter.next();
+      fighter.display();
+      fighter.comboDone();
+      break;
+
+    case 3:
+    winScreen.play();
+    image(winScreen, 0, 0);
+    break;
+
+  }
+
+
     //read inputs from arduino
     // if ( myPort.available() > 0)
     //   {  // If data is available,
@@ -191,12 +234,6 @@ public void draw(){
     //       }
     // }
 
-  // Display, cycle, and move all the animation objects
-    fighter.decideAction(inputs);
-    fighter.move();
-    fighter.next();
-    fighter.display();
-    // fighter.comboCheck();
     // if(fighter.comboState == 4 && !comboSent){
     //   myPort.clear();
     //   myPort.write("c");
@@ -206,10 +243,6 @@ public void draw(){
     // if (millis() > comboSigTime) comboSent = false;
     //  myPort.clear();
 }
-// Daniel Shiffman
-// Hanukkah 2011
-// 8 nights of Processing examples
-// http://www.shiffman.net
 
 // The animation object
 
@@ -220,8 +253,8 @@ class Animation {
   // The index into the array is a float!
   // This allows us to vary the speed of the animation
   // It will have to be converted to an int before the actual image is displayed
-  float index = 0; 
-  
+  float index = 0;
+
   // Speed, this will control both the animations movement
   // as well as how fast it cycles through the images
   float speed;
@@ -229,12 +262,12 @@ class Animation {
 
   // The array of images
   PImage[] images;
-  
+
   Animation(PImage[] images_, float x_, float y_) {
     images = images_;
     x = x_;
     y = y_;
-    
+
     // A random speed
     speed = 5;
     frameSpeed = 0.2f;
@@ -265,7 +298,7 @@ class Animation {
       // We could just say index = 0
       // but this is slightly more accurate
       index -= images.length;
-    } 
+    }
   }
 }
 // Daniel Shiffman
@@ -287,6 +320,9 @@ class Fighter {
   // This allows us to vary the speed of the animation
   // It will have to be converted to an int before the actual image is displayed
   float index;
+
+  float xOffset = width / 3; //offset the combos because they aren't centered
+  int comboReady = 0; //0 for no combo, 1-4 for combos 1-4 respectively
 
   float frameSpeed; //animation speed
   PImage[] currAnim; //animation to draw
@@ -329,6 +365,10 @@ class Fighter {
     kickRight = animations[7];
     jumpLeft = animations[8];
     jumpRight = animations[9];
+    combo1 = animations[10];
+    combo2 = animations[11];
+    combo3 = animations[12];
+    combo4 = animations[13];
     pos = new PVector(x_, y_);
     vel = new PVector(0, 0);
     acc = new PVector(0, 0);
@@ -342,6 +382,7 @@ class Fighter {
     comboState = 0;
     comboTimer = 0;
     comboTimeout = 1000;
+    comboReady = 0;
     currAnim = idleRight;
     punchRegistered = false;
     kickRegistered = false;
@@ -357,7 +398,12 @@ class Fighter {
     // println(index);
     // println(imageIndex);
     // println("done");
-    image(currAnim[imageIndex], pos.x, pos.y);
+    if (comboReady == 0){
+      image(currAnim[imageIndex], pos.x, pos.y);
+    } else {
+      image(currAnim[imageIndex], pos.x + xOffset, pos.y);
+    }
+
   }
 
   public void move() {
@@ -483,7 +529,7 @@ class Fighter {
           punchRegistered = true;
         }
         textSize(100);
-        //text("State 0", 10, 100);
+        text("State 0", 10, 100);
       break;
 
       case 1: //p
@@ -499,7 +545,7 @@ class Fighter {
           kickRegistered = true;
         }
         textSize(100);
-        //text("State 1", 10, 100);
+        text("State 1", 10, 100);
       break;
 
       case 2: //pk
@@ -515,7 +561,7 @@ class Fighter {
           kickRegistered = true;
         }
         textSize(100);
-        //text("State 2", 10, 100);
+        text("State 2", 10, 100);
       break;
 
       case 3: //pkk
@@ -531,17 +577,27 @@ class Fighter {
           kickRegistered = true;
         }
         textSize(100);
-        //text("State 3", 10, 100);
+        text("State 3", 10, 100);
       break;
 
       case 4: //pkkp COMBO COMPLETED!
         textSize(100);
-        //text("COMBO COMPLETED", 10, 100);
+        text("COMBO COMPLETED", 10, 100);
+        gameState = 2;
+        currAnim = combo1;
         // image(winner, 100, 100);
+        comboReady = 1;
         if (millis() > comboTimer + 2000){
           comboState = 0;
         }
       break;
+    }
+  }
+
+  public void comboDone(){
+    if (index == 0){
+      gameState = 3;
+      comboReady = 0;
     }
   }
 }

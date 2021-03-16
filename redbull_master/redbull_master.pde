@@ -36,7 +36,10 @@ PImage[] winningMove3 = new PImage[12];
 PImage[] winningMove4 = new PImage[13];
 
 //array of all animations arrays for our fighter
-PImage[][] animations = new PImage[10][];
+PImage[][] animations = new PImage[14][];
+
+//keeping track of what part of the game we're in
+int gameState = 0; //0 = call to action; 1 = gameplay; 2 = win; 3 = try again;
 
 
 void loadAssets(){
@@ -85,6 +88,10 @@ void loadAssets(){
   animations[7] = kickRight;
   animations[8] = jumpLeft;
   animations[9] = jumpRight;
+  animations[10] = winningMove1;
+  animations[11] = winningMove2;
+  animations[12] = winningMove3;
+  animations[13] = winningMove4;
 
   // Make Fighter object
   fighter = new Fighter(animations, 100, 0);
@@ -95,6 +102,11 @@ void movieEvent(Movie m) {
 }
 
 void keyPressed(){
+  if (gameState == 0){
+    gameState = 1;
+  } else if (gameState == 3){
+    gameState = 0;
+  }
   if (key == 'z'){
     println("punch");
     inputs[4] = 1;
@@ -152,10 +164,41 @@ void setup() {
   myPort = new Serial(this, portName, 9600);
 
   background.loop();
+  callToActionScreen.loop();
 }
 
 void draw(){
-  image(background, 0, 0);
+  switch (gameState){
+    case 0:
+      image(callToActionScreen, 0, 0);
+    break;
+
+    case 1:
+      image(background, 0, 0);
+      // Display, cycle, and move all the animation objects
+      fighter.decideAction(inputs);
+      fighter.move();
+      fighter.next();
+      fighter.display();
+      fighter.comboCheck();
+      break;
+
+    case 2:
+      image(background, 0, 0);
+      fighter.move();
+      fighter.next();
+      fighter.display();
+      fighter.comboDone();
+      break;
+
+    case 3:
+    winScreen.play();
+    image(winScreen, 0, 0);
+    break;
+
+  }
+
+
     //read inputs from arduino
     // if ( myPort.available() > 0)
     //   {  // If data is available,
@@ -172,12 +215,6 @@ void draw(){
     //       }
     // }
 
-  // Display, cycle, and move all the animation objects
-    fighter.decideAction(inputs);
-    fighter.move();
-    fighter.next();
-    fighter.display();
-    // fighter.comboCheck();
     // if(fighter.comboState == 4 && !comboSent){
     //   myPort.clear();
     //   myPort.write("c");

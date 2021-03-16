@@ -1,7 +1,3 @@
-// Daniel Shiffman
-// Hanukkah 2011
-// 8 nights of Processing examples
-// http://www.shiffman.net
 
 // The animation object
 
@@ -12,8 +8,8 @@ class Animation {
   // The index into the array is a float!
   // This allows us to vary the speed of the animation
   // It will have to be converted to an int before the actual image is displayed
-  float index = 0; 
-  
+  float index = 0;
+
   // Speed, this will control both the animations movement
   // as well as how fast it cycles through the images
   float speed;
@@ -21,12 +17,12 @@ class Animation {
 
   // The array of images
   PImage[] images;
-  
+
   Animation(PImage[] images_, float x_, float y_) {
     images = images_;
     x = x_;
     y = y_;
-    
+
     // A random speed
     speed = 5;
     frameSpeed = 0.2;
@@ -57,6 +53,6 @@ class Animation {
       // We could just say index = 0
       // but this is slightly more accurate
       index -= images.length;
-    } 
+    }
   }
 }

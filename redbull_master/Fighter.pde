@@ -18,6 +18,9 @@ class Fighter {
   // It will have to be converted to an int before the actual image is displayed
   float index;
 
+  float xOffset = width / 3; //offset the combos because they aren't centered
+  int comboReady = 0; //0 for no combo, 1-4 for combos 1-4 respectively
+
   float frameSpeed; //animation speed
   PImage[] currAnim; //animation to draw
 
@@ -59,6 +62,10 @@ class Fighter {
     kickRight = animations[7];
     jumpLeft = animations[8];
     jumpRight = animations[9];
+    combo1 = animations[10];
+    combo2 = animations[11];
+    combo3 = animations[12];
+    combo4 = animations[13];
     pos = new PVector(x_, y_);
     vel = new PVector(0, 0);
     acc = new PVector(0, 0);
@@ -72,6 +79,7 @@ class Fighter {
     comboState = 0;
     comboTimer = 0;
     comboTimeout = 1000;
+    comboReady = 0;
     currAnim = idleRight;
     punchRegistered = false;
     kickRegistered = false;
@@ -87,7 +95,12 @@ class Fighter {
     // println(index);
     // println(imageIndex);
     // println("done");
-    image(currAnim[imageIndex], pos.x, pos.y);
+    if (comboReady == 0){
+      image(currAnim[imageIndex], pos.x, pos.y);
+    } else {
+      image(currAnim[imageIndex], pos.x + xOffset, pos.y);
+    }
+
   }
 
   void move() {
@@ -213,7 +226,7 @@ class Fighter {
           punchRegistered = true;
         }
         textSize(100);
-        //text("State 0", 10, 100);
+        text("State 0", 10, 100);
       break;
 
       case 1: //p
@@ -229,7 +242,7 @@ class Fighter {
           kickRegistered = true;
         }
         textSize(100);
-        //text("State 1", 10, 100);
+        text("State 1", 10, 100);
       break;
 
       case 2: //pk
@@ -245,7 +258,7 @@ class Fighter {
           kickRegistered = true;
         }
         textSize(100);
-        //text("State 2", 10, 100);
+        text("State 2", 10, 100);
       break;
 
       case 3: //pkk
@@ -261,17 +274,27 @@ class Fighter {
           kickRegistered = true;
         }
         textSize(100);
-        //text("State 3", 10, 100);
+        text("State 3", 10, 100);
       break;
 
       case 4: //pkkp COMBO COMPLETED!
         textSize(100);
-        //text("COMBO COMPLETED", 10, 100);
+        text("COMBO COMPLETED", 10, 100);
+        gameState = 2;
+        currAnim = combo1;
         // image(winner, 100, 100);
+        comboReady = 1;
         if (millis() > comboTimer + 2000){
           comboState = 0;
         }
       break;
+    }
+  }
+
+  void comboDone(){
+    if (index == 0){
+      gameState = 3;
+      comboReady = 0;
     }
   }
 }
