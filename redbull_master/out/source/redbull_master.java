@@ -322,7 +322,8 @@ class Fighter {
   float index;
 
   float xOffset = width / 3; //offset the combos because they aren't centered
-  int comboReady = 0; //0 for no combo, 1-4 for combos 1-4 respectively
+  int comboReady; //0 for no combo, 1-4 for combos 1-4 respectively
+  boolean attacking;
 
   float frameSpeed; //animation speed
   PImage[] currAnim; //animation to draw
@@ -383,6 +384,7 @@ class Fighter {
     comboTimer = 0;
     comboTimeout = 1000;
     comboReady = 0;
+    attacking = false;
     currAnim = idleRight;
     punchRegistered = false;
     kickRegistered = false;
@@ -428,6 +430,9 @@ class Fighter {
 
 
     if (index >= currAnim.length) {
+      if (attacking){
+        attacking = false;
+      }
       // We could just say index = 0
       // but this is slightly more accurate
       // index -= currAnim.length;
@@ -444,48 +449,29 @@ class Fighter {
     int punch = inputs[4];
     int kick = inputs[5];
 
-    //movement
-    if (left == 1){
-      vel.x = -8;
-      currAnim = walkLeft;
-      direction = false;
-      // index = 0;
-    } else if (right == 1){
-      vel.x = 8;
-      currAnim = walkRight;
-      direction = true;
-      //index = 0;
-    } else {
-      vel.x = 0;
-      if(direction){
-        currAnim = idleRight;
+    if (!attacking){
+      //movement
+      if (left == 1){
+        vel.x = -8;
+        currAnim = walkLeft;
+        direction = false;
+        // index = 0;
+      } else if (right == 1){
+        vel.x = 8;
+        currAnim = walkRight;
+        direction = true;
+        //index = 0;
       } else {
-        currAnim = idleLeft;
+        vel.x = 0;
+        if(direction){
+          currAnim = idleRight;
+        } else {
+          currAnim = idleLeft;
+        }
+        //index = 0;
       }
-      //index = 0;
-    }
 
-    //action
-    if (punch == 1){
-      if (direction){
-        currAnim = punchRight;
-      } else {
-        currAnim = punchLeft;
-      }
-      // index = 0;
-    } else if (kick == 1){
-      if (direction){
-        currAnim = kickRight;
-      } else {
-        currAnim = kickLeft;
-      }
-      // index = 0;s
-    // } else if (down == 1){
-    //   currAnim = idleRight;
-    //   acc.x = acc.x - vel.x/2;
-    //   index = 0;
-    }
-    if (up == 1){
+      if (up == 1){
       if (direction){
         currAnim = jumpRight;
       } else {
@@ -503,6 +489,27 @@ class Fighter {
         currAnim = jumpLeft;
       }
     }
+    }
+
+
+    //action
+    if (punch == 1){
+      attacking = true;
+      if (direction){
+        currAnim = punchRight;
+      } else {
+        currAnim = punchLeft;
+      }
+      // index = 0;
+    } else if (kick == 1){
+      attacking = true;
+      if (direction){
+        currAnim = kickRight;
+      } else {
+        currAnim = kickLeft;
+      }
+    }
+
 
     // //reset action variables
     if (punch == 0 && punchRegistered) punchRegistered = false;
@@ -545,7 +552,7 @@ class Fighter {
           kickRegistered = true;
         }
         textSize(100);
-        text("State 1", 10, 100);
+        text("State 1: p", 10, 100);
       break;
 
       case 2: //pk
@@ -561,7 +568,7 @@ class Fighter {
           kickRegistered = true;
         }
         textSize(100);
-        text("State 2", 10, 100);
+        text("State 2: pk", 10, 100);
       break;
 
       case 3: //pkk
@@ -577,12 +584,12 @@ class Fighter {
           kickRegistered = true;
         }
         textSize(100);
-        text("State 3", 10, 100);
+        text("State 3: pkk", 10, 100);
       break;
 
       case 4: //pkkp COMBO COMPLETED!
         textSize(100);
-        text("COMBO COMPLETED", 10, 100);
+        text("COMBO COMPLETED: pkkp", 10, 100);
         gameState = 2;
         currAnim = combo1;
         // image(winner, 100, 100);
