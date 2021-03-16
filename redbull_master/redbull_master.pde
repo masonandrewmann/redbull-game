@@ -18,6 +18,7 @@ Movie comboVideo2;  //combo video
 Movie comboVideo3;  //combo video
 Movie comboVideo4;  //combo video
 PImage playerOverlay;  //player healthbar
+PImage[] comboBar = new PImage[11];
 
 //image arrays for all animations
 PImage[] idleLeft = new PImage[2];
@@ -40,6 +41,8 @@ PImage[][] animations = new PImage[14][];
 
 //keeping track of what part of the game we're in
 int gameState = 0; //0 = call to action; 1 = gameplay; 2 = win; 3 = try again;
+
+float bgDimmer = 0;
 
 
 void loadAssets(){
@@ -77,6 +80,12 @@ void loadAssets(){
         winningMove4[i] = loadImage("6_WINNING_MOVE_4/PNG_FOLDER/WINNING_MOVE_4_FRAME_" + (i+1) + ".png");
   }
 
+  playerOverlay = loadImage("0_GRAPHICS/PLAYER_1_FANG/PLAYER_1_FANG.png");
+
+  for (int i = 0; i <11; i++){
+        comboBar[i] = loadImage("0_GRAPHICS/COMBO_BAR/COMBO_BAR_FRAME_" + (i+1) + ".png");
+  }
+
   //set up animations array for fighter
   animations[0] = idleLeft;
   animations[1] = idleRight;
@@ -104,9 +113,8 @@ void movieEvent(Movie m) {
 void keyPressed(){
   if (gameState == 0){
     gameState = 1;
-  } else if (gameState == 3){
-    gameState = 0;
   }
+
   if (key == 'z'){
     println("punch");
     inputs[4] = 1;
@@ -134,9 +142,13 @@ void keyReleased(){
     if (key == 'z'){
     println("punch");
     inputs[4] = 0;
+    fighter.punchAllow = true;
+    fighter.punching = false;
   } else if (key == 'x'){
     inputs[5] = 0;
     println("kick");
+    fighter.kickAllow = true;
+    fighter.kicking = false;
   }
 
   if (key == CODED) {
@@ -181,19 +193,32 @@ void draw(){
       fighter.next();
       fighter.display();
       fighter.comboCheck();
+      image(playerOverlay, 0, 0);
+      image(comboBar[fighter.comboMeterNum], 0, 0);
       break;
 
     case 2:
       image(background, 0, 0);
+      noStroke();
+      fill(0, bgDimmer);
+      bgDimmer += 5;
+      rect(0, 0, width, height);
       fighter.move();
       fighter.next();
       fighter.display();
       fighter.comboDone();
+      image(playerOverlay, 0, 0);
       break;
 
     case 3:
     winScreen.play();
     image(winScreen, 0, 0);
+    if(winScreen.time() >= winScreen.duration()){
+      gameState = 0;
+      winScreen.jump(0);
+      winScreen.stop();
+    }
+    bgDimmer = 0;
     break;
 
   }
