@@ -432,7 +432,7 @@ class Fighter {
     if (comboReady == 0){
       image(currAnim[imageIndex], pos.x, pos.y);
     } else {
-      image(currAnim[imageIndex], pos.x + xOffset, pos.y);
+      image(currAnim[imageIndex], 0, 0);
     }
 
   }
@@ -618,7 +618,7 @@ class Fighter {
       comboStream = "xxxxxx";
     }
 
-    if(comboStream.substring(2, 6).equals("pkkp")){
+    if(comboStream.substring(2, 6).equals("e")){
         textSize(100);
         text("One: COMBO COMPLETED: pkkp", 10, 100);
         gameState = 2;
