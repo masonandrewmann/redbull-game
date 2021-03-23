@@ -77,8 +77,8 @@ public void loadAssets(){
 
   //load the PNGs
   for (int i = 0; i < 7; i++){
-    walkLeft[i] = loadImage("1_LEFT_WALK/LEFT_WALK_FRAME_" + (i+1) + ".png");
-    walkRight[i] = loadImage("1_RIGHT_WALK/RIGHT_WALK_FRAME_" + (i+1) + ".png");
+    walkLeft[i] = loadImage("1_LEFT_WALK_V2/LEFT_WALK_FRAME_" + (i+1) + "_V2.png");
+    walkRight[i] = loadImage("1_RIGHT_WALK_V2/RIGHT_WALK_FRAME_" + (i+1) + "_V2.png");
     kickLeft[i] = loadImage("2_LEFT_KICK/LEFT_KICK_FRAME_" + (i+1) + ".png");
     kickRight[i] = loadImage("2_RIGHT_KICK/RIGHT_KICK_FRAME_" + (i+1) + ".png");
     punchLeft[i] = loadImage("3_LEFT_PUNCH/LEFT_PUNCH_FRAME_" + (i+1) + ".png");
@@ -87,8 +87,8 @@ public void loadAssets(){
     jumpRight[i] = loadImage("4_RIGHT_JUMP/RIGHT_JUMP_FRAME_" + (i+1) + ".png");
   }
   for (int i = 0; i < 2; i++){
-    idleLeft[i] = loadImage("5_LEFT_IDLE/LEFT_IDLE_FRAME_" + (i+1) + ".png");
-    idleRight[i] = loadImage("5_RIGHT_IDLE/RIGHT_IDLE_FRAME_" + (i+1) + ".png");
+    idleLeft[i] = loadImage("5_LEFT_IDLE_V2/LEFT_IDLE_FRAME_" + (i+1) + "_V2.png");
+    idleRight[i] = loadImage("5_RIGHT_IDLE_V2/RIGHT_IDLE_FRAME_" + (i+1) + "_V2.png");
   }
   for (int i = 0; i < 12; i++){
     winningMove1[i] = loadImage("6_WINNING_MOVE_1/PNG_FOLDER/WINNING_MOVE_1_FRAME_" + (i+1) + ".png");
