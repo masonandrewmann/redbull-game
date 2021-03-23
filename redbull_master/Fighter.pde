@@ -28,7 +28,7 @@ class Fighter {
   boolean punchAllow;
   boolean punching;
   boolean kicking;
-  String comboStream = "xxxxxx";
+  boolean playWinSound;  String comboStream = "xxxxxx";
   int comboMeterNum;
 
   boolean facingRight; //facingRight facing: true is right, false is left
@@ -85,8 +85,8 @@ class Fighter {
     comboReady = 0;
     attacking = false;
     currAnim = idleRight;
-    punchRegistered = true;
-    kickRegistered = true;
+    punchRegistered = false;
+    kickRegistered = false;
     facingRight = true;
     attackTimeout = false;
     punchAllow = true;
@@ -220,6 +220,9 @@ class Fighter {
 
     //action
     if (punch == 1 && !attacking && punchAllow){
+      if (!attacking){
+        punchSound.play();
+      }
       attacking = true;
       punching = true;
       if (facingRight){
@@ -231,6 +234,9 @@ class Fighter {
       }
       // index = 0;
     } else if (kick == 1 && !attacking && kickAllow){
+      if (!kicking){
+        kickSound.play();
+      }
       attacking = true;
       kicking = true;
       if (facingRight){
@@ -293,26 +299,26 @@ class Fighter {
     if(comboStream.substring(2, 6).equals("e")){
         textSize(100);
         text("One: COMBO COMPLETED: pkkp", 10, 100);
-        gameState = 2;
+        gameState = 4;
         currAnim = combo1;
         // image(winner, 100, 100);
         comboReady = 1;
     } else if (comboStream.substring(2, 6).equals("e")){
         textSize(100);
         text("Two: COMBO COMPLETED: pkkp", 10, 100);
-        gameState = 2;
+        gameState = 4;
         currAnim = combo2;
         comboReady = 2;
     } else if (comboStream.substring(2, 6).equals("e")){
         textSize(100);
         text("Three: COMBO COMPLETED: pkkp", 10, 100);
-        gameState = 2;
+        gameState = 4;
         currAnim = combo3;
         comboReady = 3;
     } else if (comboStream.substring(2, 6).equals("pkkp")){
         textSize(100);
         text("Four: COMBO COMPLETED: pkkp", 10, 100);
-        gameState = 2;
+        gameState = 4;
         currAnim = combo4;
         comboReady = 4;
     }
@@ -399,7 +405,7 @@ class Fighter {
 
   void comboDone(){
     if (index == 0){
-      gameState = 3;
+      gameState = 5;
       comboReady = 0;
       comboState1 = 0;
     }

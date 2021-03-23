@@ -5,6 +5,7 @@ import processing.opengl.*;
 
 import processing.video.*; 
 import processing.serial.*; 
+import processing.sound.*; 
 
 import java.util.HashMap; 
 import java.util.ArrayList; 
@@ -20,6 +21,8 @@ public class redbull_master extends PApplet {
 
 
 
+
+
 //fetching input data from microcontroller
 Serial myPort;  // Create object from Serial class
 String val;     // Data received from the serial port
@@ -31,7 +34,7 @@ Fighter fighter;    //our fighter
 Movie background;   //background image
 Movie callToActionScreen; //intro screen
 Movie winScreen;
-Movie tryAgainScreen;
+Movie resetScreen;
 Movie comboVideo1;  //combo video
 Movie comboVideo2;  //combo video
 Movie comboVideo3;  //combo video
@@ -55,20 +58,34 @@ PImage[] winningMove2 = new PImage[12];
 PImage[] winningMove3 = new PImage[12];
 PImage[] winningMove4 = new PImage[13];
 
+//sound files
+SoundFile bgMusic;
+SoundFile punchSound;
+SoundFile kickSound;
+SoundFile introSound;
+SoundFile beginSound;
+SoundFile[] winSound = new SoundFile[4];
+SoundFile resetSound;
+
 //array of all animations arrays for our fighter
 PImage[][] animations = new PImage[14][];
 
 //keeping track of what part of the game we're in
 int gameState = 0; //0 = call to action; 1 = gameplay; 2 = win; 3 = try again;
+boolean playWinSound = false;
 
 float bgDimmer = 0;
+
+
+
+
 
 
 public void loadAssets(){
   //load the MP4s
   background = new Movie(this, "0_BACKGROUND/BACKGROUND.mp4");
   callToActionScreen = new Movie(this, "0_CALL_TO_ACTION_SCREEN/CALL_TO_ACTION_SCREEN.mp4");
-  tryAgainScreen = new Movie(this, "0_TRY_AGAIN_SCREEN/TRY_AGAIN_SCREEN.mp4");
+  resetScreen = new Movie(this, "0_TRY_AGAIN_SCREEN/TRY_AGAIN_SCREEN.mp4");
   winScreen = new Movie(this, "0_WIN_SCREEN/WIN_SCREEN.mp4");
   comboVideo1 = new Movie(this, "6_WINNING_MOVE_1/WINNING_MOVE_1_VID.mp4");
   comboVideo2 = new Movie(this, "6_WINNING_MOVE_2/WINNING_MOVE_2_VID.mp4");
@@ -105,6 +122,19 @@ public void loadAssets(){
         comboBar[i] = loadImage("0_GRAPHICS/COMBO_BAR/COMBO_BAR_FRAME_" + (i+1) + ".png");
   }
 
+  //load the sounds
+  bgMusic = new SoundFile(this, "SOUNDS/bg.mp3");
+  bgMusic.amp(0.3f);
+  punchSound = new SoundFile(this, "SOUNDS/punch.wav");
+  kickSound = new SoundFile(this, "SOUNDS/kick.wav");
+  introSound = new SoundFile(this, "SOUNDS/announcer/intro.wav");
+  beginSound = new SoundFile(this, "SOUNDS/announcer/beginning.wav");
+  resetSound = new SoundFile(this, "SOUNDS/announcer/reset.wav");
+
+  for (int i = 0; i < 4; i++){
+        winSound[i] = new SoundFile(this, "SOUNDS/announcer/WIN/WIN_" + (i+1) + ".wav");
+  }
+
   //set up animations array for fighter
   animations[0] = idleLeft;
   animations[1] = idleRight;
@@ -130,8 +160,8 @@ public void movieEvent(Movie m) {
 }
 
 public void keyPressed(){
-  if (gameState == 0){
-    gameState = 1;
+  if (gameState == 1){
+    gameState = 2;
   }
 
   if (key == 'z'){
@@ -140,6 +170,8 @@ public void keyPressed(){
   } else if (key == 'x'){
     inputs[5] = 1;
     println("kick");
+  } else if (key == 'r'){
+    gameState = 7;
   }
   if (key == CODED) {
     if (keyCode == LEFT){
@@ -196,15 +228,31 @@ public void setup() {
 
   background.loop();
   callToActionScreen.loop();
+  bgMusic.loop();
 }
 
 public void draw(){
   switch (gameState){
     case 0:
-      image(callToActionScreen, 0, 0);
+    //call to action sound
+    introSound.play();
+    image(callToActionScreen, 0, 0);
+    gameState = 1;
     break;
 
     case 1:
+    //call to action
+    image(callToActionScreen, 0, 0);
+    break;
+
+    case 2:
+    //play begin sound
+    beginSound.play();
+    gameState = 3;
+    break;
+
+    case 3:
+    //gameplay
       image(background, 0, 0);
       // Display, cycle, and move all the animation objects
       fighter.decideAction(inputs);
@@ -216,7 +264,8 @@ public void draw(){
       image(comboBar[fighter.comboMeterNum], 0, 0);
       break;
 
-    case 2:
+    case 4:
+    //winning combo
       image(background, 0, 0);
       noStroke();
       fill(0, bgDimmer);
@@ -229,17 +278,49 @@ public void draw(){
       image(playerOverlay, 0, 0);
       break;
 
-    case 3:
+    case 5:
+    //victory sound
+    int tmp = (int)random(0, 4);
+    winSound[tmp].play();
     winScreen.play();
     image(winScreen, 0, 0);
+    gameState = 6;
+    break;
+
+    case 6:
+    //victory screen
+    image(winScreen, 0, 0);
     if(winScreen.time() >= winScreen.duration()){
-      gameState = 0;
+      gameState = 9;
       winScreen.jump(0);
       winScreen.stop();
     }
-    bgDimmer = 0;
     break;
 
+    case 7:
+    //failure sound
+    resetSound.play();
+    resetScreen.play();
+    image(resetScreen, 0, 0);
+    gameState = 8;
+    break;
+
+    case 8:
+    //failure screen
+    image(resetScreen, 0, 0);
+    if(resetScreen.time() >= resetScreen.duration()){
+      resetScreen.jump(0);
+      resetScreen.stop();
+      gameState = 9;
+    }
+    break;
+
+    case 9:
+    //resetting
+    playWinSound = false;
+    bgDimmer = 0;
+    gameState = 0;
+    break;
   }
 
 
@@ -356,7 +437,7 @@ class Fighter {
   boolean punchAllow;
   boolean punching;
   boolean kicking;
-  String comboStream = "xxxxxx";
+  boolean playWinSound;  String comboStream = "xxxxxx";
   int comboMeterNum;
 
   boolean facingRight; //facingRight facing: true is right, false is left
@@ -413,8 +494,8 @@ class Fighter {
     comboReady = 0;
     attacking = false;
     currAnim = idleRight;
-    punchRegistered = true;
-    kickRegistered = true;
+    punchRegistered = false;
+    kickRegistered = false;
     facingRight = true;
     attackTimeout = false;
     punchAllow = true;
@@ -548,6 +629,9 @@ class Fighter {
 
     //action
     if (punch == 1 && !attacking && punchAllow){
+      if (!attacking){
+        punchSound.play();
+      }
       attacking = true;
       punching = true;
       if (facingRight){
@@ -559,6 +643,9 @@ class Fighter {
       }
       // index = 0;
     } else if (kick == 1 && !attacking && kickAllow){
+      if (!kicking){
+        kickSound.play();
+      }
       attacking = true;
       kicking = true;
       if (facingRight){
@@ -621,26 +708,26 @@ class Fighter {
     if(comboStream.substring(2, 6).equals("e")){
         textSize(100);
         text("One: COMBO COMPLETED: pkkp", 10, 100);
-        gameState = 2;
+        gameState = 4;
         currAnim = combo1;
         // image(winner, 100, 100);
         comboReady = 1;
     } else if (comboStream.substring(2, 6).equals("e")){
         textSize(100);
         text("Two: COMBO COMPLETED: pkkp", 10, 100);
-        gameState = 2;
+        gameState = 4;
         currAnim = combo2;
         comboReady = 2;
     } else if (comboStream.substring(2, 6).equals("e")){
         textSize(100);
         text("Three: COMBO COMPLETED: pkkp", 10, 100);
-        gameState = 2;
+        gameState = 4;
         currAnim = combo3;
         comboReady = 3;
     } else if (comboStream.substring(2, 6).equals("pkkp")){
         textSize(100);
         text("Four: COMBO COMPLETED: pkkp", 10, 100);
-        gameState = 2;
+        gameState = 4;
         currAnim = combo4;
         comboReady = 4;
     }
@@ -727,7 +814,7 @@ class Fighter {
 
   public void comboDone(){
     if (index == 0){
-      gameState = 3;
+      gameState = 5;
       comboReady = 0;
       comboState1 = 0;
     }
