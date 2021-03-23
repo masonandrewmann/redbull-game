@@ -40,8 +40,8 @@ PImage playerOverlay;  //player healthbar
 PImage[] comboBar = new PImage[11];
 
 //image arrays for all animations
-PImage[] idleLeft = new PImage[2];
-PImage[] idleRight = new PImage[2];
+PImage[] idleLeft = new PImage[9];
+PImage[] idleRight = new PImage[9];
 PImage[] walkLeft = new PImage[7];
 PImage[] walkRight = new PImage[7];
 PImage[] punchLeft = new PImage[7];
@@ -86,7 +86,7 @@ public void loadAssets(){
     jumpLeft[i] = loadImage("4_LEFT_JUMP/LEFT_JUMP_FRAME_" + (i+1) + ".png");
     jumpRight[i] = loadImage("4_RIGHT_JUMP/RIGHT_JUMP_FRAME_" + (i+1) + ".png");
   }
-  for (int i = 0; i < 2; i++){
+  for (int i = 0; i < 9; i++){
     idleLeft[i] = loadImage("5_LEFT_IDLE_V2/LEFT_IDLE_FRAME_" + (i+1) + "_V2.png");
     idleRight[i] = loadImage("5_RIGHT_IDLE_V2/RIGHT_IDLE_FRAME_" + (i+1) + "_V2.png");
   }
@@ -413,8 +413,8 @@ class Fighter {
     comboReady = 0;
     attacking = false;
     currAnim = idleRight;
-    punchRegistered = false;
-    kickRegistered = false;
+    punchRegistered = true;
+    kickRegistered = true;
     facingRight = true;
     attackTimeout = false;
     punchAllow = true;

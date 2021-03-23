@@ -85,8 +85,8 @@ class Fighter {
     comboReady = 0;
     attacking = false;
     currAnim = idleRight;
-    punchRegistered = false;
-    kickRegistered = false;
+    punchRegistered = true;
+    kickRegistered = true;
     facingRight = true;
     attackTimeout = false;
     punchAllow = true;
