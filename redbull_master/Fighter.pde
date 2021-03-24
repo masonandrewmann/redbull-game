@@ -24,11 +24,13 @@ class Fighter {
   float comboTimer;
   int comboTimeout;
   boolean attackTimeout;
+  boolean[] inputsAllow = {false, false, false, false, false, false};
   boolean kickAllow;
   boolean punchAllow;
   boolean punching;
   boolean kicking;
-  boolean playWinSound;  String comboStream = "xxxxxx";
+  boolean playWinSound;
+  String comboStream = "xxxxxx";
   int comboMeterNum;
 
   boolean facingRight; //facingRight facing: true is right, false is left
@@ -266,15 +268,37 @@ class Fighter {
 
     //update the input string
     if (inputs[4] == 1 && !punchRegistered && !attackTimeout){
+      //add punch to combo string
       comboStream = comboStream.substring(1, 6) + "p";
       punchRegistered = true;
       attackTimeout = true;
       comboTimer = millis() + comboTimeout;
     } else if (inputs[5] == 1 && !kickRegistered && !attackTimeout){
+      //add kick to combo string
       comboStream = comboStream.substring(1, 6) + "k";
       kickRegistered = true;
       attackTimeout = true;
       comboTimer = millis() + comboTimeout;
+    } else if(inputs[0] == 1 && inputsAllow[0]){
+      //add left to combo string
+      comboStream = comboStream.substring(1, 6) + "l";
+      comboTimer = millis() + comboTimeout;
+      inputsAllow[0] = false;
+    } else if(inputs[1] == 1 && inputsAllow[1]){
+      //add right to combo string
+      comboStream = comboStream.substring(1, 6) + "r";
+      comboTimer = millis() + comboTimeout;
+      inputsAllow[1] = false;
+    } else if(inputs[2] == 1 && inputsAllow[2]){
+      //add up to combo string
+      comboStream = comboStream.substring(1, 6) + "u";
+      comboTimer = millis() + comboTimeout;
+      inputsAllow[2] = false;
+    } else if(inputs[3] == 1 && inputsAllow[3]){
+      //add down to combo string
+      comboStream = comboStream.substring(1, 6) + "d";
+      comboTimer = millis() + comboTimeout;
+      inputsAllow[3] = false;
     }
     //display the combo stream for debugging
     textSize(100);
@@ -296,30 +320,38 @@ class Fighter {
       comboStream = "xxxxxx";
     }
 
-    if(comboStream.substring(2, 6).equals("e")){
+    if(comboStream.substring(3, 6).equals("drp")){
+      //Tekken Yoshimitsu Soul Stealer QCF + P: DRP
         textSize(100);
-        text("One: COMBO COMPLETED: pkkp", 10, 100);
+        text("One: COMBO COMPLETED: drpss", 10, 100);
         gameState = 4;
         currAnim = combo1;
+        background.stop();
         // image(winner, 100, 100);
         comboReady = 1;
-    } else if (comboStream.substring(2, 6).equals("e")){
+    } else if (comboStream.substring(3, 6).equals("rrk")){
+      //Tekken 7 Eddy Combo FF+4: ffk
         textSize(100);
-        text("Two: COMBO COMPLETED: pkkp", 10, 100);
+        text("Two: COMBO COMPLETED: ffk", 10, 100);
         gameState = 4;
         currAnim = combo2;
+        background.stop();
         comboReady = 2;
-    } else if (comboStream.substring(2, 6).equals("e")){
+    } else if (comboStream.substring(0, 6).equals("ldrkkp")){
+      //soul calibur type combo
         textSize(100);
-        text("Three: COMBO COMPLETED: pkkp", 10, 100);
+        text("Three: COMBO COMPLETED: ldrkkp", 10, 100);
         gameState = 4;
         currAnim = combo3;
+        background.stop();
         comboReady = 3;
-    } else if (comboStream.substring(2, 6).equals("pkkp")){
+    } else if (comboStream.substring(0, 6).equals("lrpukp")){
+      // the devtron rhubarb special
         textSize(100);
-        text("Four: COMBO COMPLETED: pkkp", 10, 100);
+        text("Four: COMBO COMPLETED: lrpukp", 10, 100);
         gameState = 4;
         currAnim = combo4;
+        background.stop();
         comboReady = 4;
     }
 
@@ -404,7 +436,7 @@ class Fighter {
 
 
   void comboDone(){
-    if (index == 0){
+    if (index >= 11){
       gameState = 5;
       comboReady = 0;
       comboState1 = 0;

@@ -29,6 +29,9 @@ String val;     // Data received from the serial port
 String[] list;
 int inputs[] = {0, 0, 0, 0, 0, 0}; //button inputs from arduino
 
+//font for timer
+PFont fightingFont;
+
 //assets
 Fighter fighter;    //our fighter
 Movie background;   //background image
@@ -73,6 +76,7 @@ PImage[][] animations = new PImage[14][];
 //keeping track of what part of the game we're in
 int gameState = 0; //0 = call to action; 1 = gameplay; 2 = win; 3 = try again;
 boolean playWinSound = false;
+int masterTimer = 0;
 
 float bgDimmer = 0;
 
@@ -205,30 +209,39 @@ public void keyReleased(){
   if (key == CODED) {
     if (keyCode == LEFT){
       inputs[0] = 0;
+      fighter.inputsAllow[0] = true;
     }
     if (keyCode == RIGHT){
       inputs[1] = 0;
+      fighter.inputsAllow[1] = true;
     }
     if (keyCode == UP){
       inputs[2] = 0;
+      fighter.inputsAllow[2] = true;
     }
     if (keyCode == DOWN){
       inputs[3] = 0;
+      fighter.inputsAllow[3] = true;
     }
   }
 }
 
 public void setup() {
   
+
+  //load images, videos and sounds
   loadAssets();
 
   //initialize serial comm
   String portName = Serial.list()[1]; //change the 0 to a 1 or 2 etc. to match your port
   myPort = new Serial(this, portName, 9600);
 
-  background.loop();
-  callToActionScreen.loop();
+  //get font ready
+  fightingFont = createFont("FONTS/hollowpoint.ttf", 64);
+  textFont(fightingFont);
+
   bgMusic.loop();
+  masterTimer = millis();
 }
 
 public void draw(){
@@ -236,18 +249,28 @@ public void draw(){
     case 0:
     //call to action sound
     introSound.play();
+    callToActionScreen.loop();
     image(callToActionScreen, 0, 0);
     gameState = 1;
     break;
 
     case 1:
     //call to action
+    // callToActionScreen.loop();
     image(callToActionScreen, 0, 0);
     break;
 
     case 2:
     //play begin sound
+    callToActionScreen.stop();
+    masterTimer = millis();
     beginSound.play();
+    gameState = 11;
+    break;
+
+    case 11:
+    //prepare for gameplay
+    background.loop();
     gameState = 3;
     break;
 
@@ -262,6 +285,12 @@ public void draw(){
       fighter.comboCheck();
       image(playerOverlay, 0, 0);
       image(comboBar[fighter.comboMeterNum], 0, 0);
+      //timer
+      int currTime = 20 - (millis() - masterTimer)/1000;
+      text("TIMER: " + currTime, 1300, 100);
+      if(currTime <= 0){
+      gameState = 7;
+  }
       break;
 
     case 4:
@@ -311,9 +340,19 @@ public void draw(){
     if(resetScreen.time() >= resetScreen.duration()){
       resetScreen.jump(0);
       resetScreen.stop();
-      gameState = 9;
+      gameState = 10;
     }
     break;
+
+    case 10:
+      noStroke();
+      fill(0, bgDimmer);
+      bgDimmer += 3;
+      rect(0, 0, width, height);
+      if (bgDimmer >= 255){
+        gameState = 9;
+      }
+      break;
 
     case 9:
     //resetting
@@ -323,7 +362,6 @@ public void draw(){
     break;
   }
 
-
     //read inputs from arduino
     // if ( myPort.available() > 0)
     //   {  // If data is available,
@@ -331,6 +369,7 @@ public void draw(){
     //       val = myPort.readStringUntil('\n');       // read it and store it in val
     //       //println(val);
     //       if (val != null){
+
     //         list = split(val, "a");
     //         for (int i = 0; i < list.length-1; i++){
     //           inputs[i] = Integer.parseInt(list[i]);
@@ -433,11 +472,13 @@ class Fighter {
   float comboTimer;
   int comboTimeout;
   boolean attackTimeout;
+  boolean[] inputsAllow = {false, false, false, false, false, false};
   boolean kickAllow;
   boolean punchAllow;
   boolean punching;
   boolean kicking;
-  boolean playWinSound;  String comboStream = "xxxxxx";
+  boolean playWinSound;
+  String comboStream = "xxxxxx";
   int comboMeterNum;
 
   boolean facingRight; //facingRight facing: true is right, false is left
@@ -675,15 +716,37 @@ class Fighter {
 
     //update the input string
     if (inputs[4] == 1 && !punchRegistered && !attackTimeout){
+      //add punch to combo string
       comboStream = comboStream.substring(1, 6) + "p";
       punchRegistered = true;
       attackTimeout = true;
       comboTimer = millis() + comboTimeout;
     } else if (inputs[5] == 1 && !kickRegistered && !attackTimeout){
+      //add kick to combo string
       comboStream = comboStream.substring(1, 6) + "k";
       kickRegistered = true;
       attackTimeout = true;
       comboTimer = millis() + comboTimeout;
+    } else if(inputs[0] == 1 && inputsAllow[0]){
+      //add left to combo string
+      comboStream = comboStream.substring(1, 6) + "l";
+      comboTimer = millis() + comboTimeout;
+      inputsAllow[0] = false;
+    } else if(inputs[1] == 1 && inputsAllow[1]){
+      //add right to combo string
+      comboStream = comboStream.substring(1, 6) + "r";
+      comboTimer = millis() + comboTimeout;
+      inputsAllow[1] = false;
+    } else if(inputs[2] == 1 && inputsAllow[2]){
+      //add up to combo string
+      comboStream = comboStream.substring(1, 6) + "u";
+      comboTimer = millis() + comboTimeout;
+      inputsAllow[2] = false;
+    } else if(inputs[3] == 1 && inputsAllow[3]){
+      //add down to combo string
+      comboStream = comboStream.substring(1, 6) + "d";
+      comboTimer = millis() + comboTimeout;
+      inputsAllow[3] = false;
     }
     //display the combo stream for debugging
     textSize(100);
@@ -705,30 +768,38 @@ class Fighter {
       comboStream = "xxxxxx";
     }
 
-    if(comboStream.substring(2, 6).equals("e")){
+    if(comboStream.substring(3, 6).equals("drp")){
+      //Tekken Yoshimitsu Soul Stealer QCF + P: DRP
         textSize(100);
-        text("One: COMBO COMPLETED: pkkp", 10, 100);
+        text("One: COMBO COMPLETED: ffk", 10, 100);
         gameState = 4;
         currAnim = combo1;
+        background.stop();
         // image(winner, 100, 100);
         comboReady = 1;
-    } else if (comboStream.substring(2, 6).equals("e")){
+    } else if (comboStream.substring(3, 6).equals("rrk")){
+      //Tekken 7 Eddy Combo FF+4: ffk
         textSize(100);
-        text("Two: COMBO COMPLETED: pkkp", 10, 100);
+        text("Two: COMBO COMPLETED: ffk", 10, 100);
         gameState = 4;
         currAnim = combo2;
+        background.stop();
         comboReady = 2;
-    } else if (comboStream.substring(2, 6).equals("e")){
+    } else if (comboStream.substring(0, 6).equals("ldrkkp")){
+      //soul calibur type combo
         textSize(100);
-        text("Three: COMBO COMPLETED: pkkp", 10, 100);
+        text("Three: COMBO COMPLETED: ldrkkp", 10, 100);
         gameState = 4;
         currAnim = combo3;
+        background.stop();
         comboReady = 3;
-    } else if (comboStream.substring(2, 6).equals("pkkp")){
+    } else if (comboStream.substring(0, 6).equals("lrpukp")){
+      // the devtron rhubarb special
         textSize(100);
-        text("Four: COMBO COMPLETED: pkkp", 10, 100);
+        text("Four: COMBO COMPLETED: lrpukp", 10, 100);
         gameState = 4;
         currAnim = combo4;
+        background.stop();
         comboReady = 4;
     }
 
@@ -813,7 +884,7 @@ class Fighter {
 
 
   public void comboDone(){
-    if (index == 0){
+    if (index >= 11){
       gameState = 5;
       comboReady = 0;
       comboState1 = 0;

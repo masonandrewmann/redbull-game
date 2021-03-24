@@ -9,6 +9,9 @@ String val;     // Data received from the serial port
 String[] list;
 int inputs[] = {0, 0, 0, 0, 0, 0}; //button inputs from arduino
 
+//font for timer
+PFont fightingFont;
+
 //assets
 Fighter fighter;    //our fighter
 Movie background;   //background image
@@ -53,6 +56,7 @@ PImage[][] animations = new PImage[14][];
 //keeping track of what part of the game we're in
 int gameState = 0; //0 = call to action; 1 = gameplay; 2 = win; 3 = try again;
 boolean playWinSound = false;
+int masterTimer = 0;
 
 float bgDimmer = 0;
 
@@ -185,30 +189,39 @@ void keyReleased(){
   if (key == CODED) {
     if (keyCode == LEFT){
       inputs[0] = 0;
+      fighter.inputsAllow[0] = true;
     }
     if (keyCode == RIGHT){
       inputs[1] = 0;
+      fighter.inputsAllow[1] = true;
     }
     if (keyCode == UP){
       inputs[2] = 0;
+      fighter.inputsAllow[2] = true;
     }
     if (keyCode == DOWN){
       inputs[3] = 0;
+      fighter.inputsAllow[3] = true;
     }
   }
 }
 
 void setup() {
   size(1920, 1080);
+
+  //load images, videos and sounds
   loadAssets();
 
   //initialize serial comm
   String portName = Serial.list()[1]; //change the 0 to a 1 or 2 etc. to match your port
   myPort = new Serial(this, portName, 9600);
 
-  background.loop();
-  callToActionScreen.loop();
+  //get font ready
+  fightingFont = createFont("FONTS/hollowpoint.ttf", 64);
+  textFont(fightingFont);
+
   bgMusic.loop();
+  masterTimer = millis();
 }
 
 void draw(){
@@ -216,18 +229,28 @@ void draw(){
     case 0:
     //call to action sound
     introSound.play();
+    callToActionScreen.loop();
     image(callToActionScreen, 0, 0);
     gameState = 1;
     break;
 
     case 1:
     //call to action
+    // callToActionScreen.loop();
     image(callToActionScreen, 0, 0);
     break;
 
     case 2:
     //play begin sound
+    callToActionScreen.stop();
+    masterTimer = millis();
     beginSound.play();
+    gameState = 11;
+    break;
+
+    case 11:
+    //prepare for gameplay
+    background.loop();
     gameState = 3;
     break;
 
@@ -242,6 +265,12 @@ void draw(){
       fighter.comboCheck();
       image(playerOverlay, 0, 0);
       image(comboBar[fighter.comboMeterNum], 0, 0);
+      //timer
+      int currTime = 20 - (millis() - masterTimer)/1000;
+      text("TIMER: " + currTime, 1300, 100);
+      if(currTime <= 0){
+      gameState = 7;
+  }
       break;
 
     case 4:
@@ -291,9 +320,19 @@ void draw(){
     if(resetScreen.time() >= resetScreen.duration()){
       resetScreen.jump(0);
       resetScreen.stop();
-      gameState = 9;
+      gameState = 10;
     }
     break;
+
+    case 10:
+      noStroke();
+      fill(0, bgDimmer);
+      bgDimmer += 3;
+      rect(0, 0, width, height);
+      if (bgDimmer >= 255){
+        gameState = 9;
+      }
+      break;
 
     case 9:
     //resetting
@@ -303,7 +342,6 @@ void draw(){
     break;
   }
 
-
     //read inputs from arduino
     // if ( myPort.available() > 0)
     //   {  // If data is available,
@@ -311,6 +349,7 @@ void draw(){
     //       val = myPort.readStringUntil('\n');       // read it and store it in val
     //       //println(val);
     //       if (val != null){
+
     //         list = split(val, "a");
     //         for (int i = 0; i < list.length-1; i++){
     //           inputs[i] = Integer.parseInt(list[i]);
