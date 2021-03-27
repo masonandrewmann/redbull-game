@@ -67,7 +67,7 @@ float bgDimmer = 0;
 
 void loadAssets(){
   //load the MP4s
-  background = new Movie(this, "0_BACKGROUND/BACKGROUND.mp4");
+  //background = new Movie(this, "0_BACKGROUND/BACKGROUND.mp4");
   callToActionScreen = new Movie(this, "0_CALL_TO_ACTION_SCREEN/CALL_TO_ACTION_SCREEN.mp4");
   resetScreen = new Movie(this, "0_TRY_AGAIN_SCREEN/TRY_AGAIN_SCREEN.mp4");
   winScreen = new Movie(this, "0_WIN_SCREEN/WIN_SCREEN.mp4");
@@ -225,6 +225,7 @@ void setup() {
 }
 
 void draw(){
+  background(255);
   switch (gameState){
     case 0:
     //call to action sound
@@ -250,13 +251,13 @@ void draw(){
 
     case 11:
     //prepare for gameplay
-    background.loop();
+    //background.loop();
     gameState = 3;
     break;
 
     case 3:
     //gameplay
-      image(background, 0, 0);
+      //image(background, 0, 0);
       // Display, cycle, and move all the animation objects
       fighter.decideAction(inputs);
       fighter.move();
@@ -275,7 +276,7 @@ void draw(){
 
     case 4:
     //winning combo
-      image(background, 0, 0);
+      //image(background, 0, 0);
       noStroke();
       fill(0, bgDimmer);
       bgDimmer += 5;
