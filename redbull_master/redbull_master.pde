@@ -15,9 +15,9 @@ PFont fightingFont;
 //assets
 Fighter fighter;    //our fighter
 //Movie background;   //background image
-//Movie callToActionScreen; //intro screen
-//Movie winScreen;
-//Movie resetScreen;
+Movie callToActionScreen; //intro screen
+Movie winScreen;
+Movie resetScreen;
 //Movie comboVideo1;  //combo video
 //Movie comboVideo2;  //combo video
 //Movie comboVideo3;  //combo video
@@ -69,9 +69,9 @@ float bgDimmer = 0;
 void loadAssets(){
   //load the MP4s
   //background = new Movie(this, "0_BACKGROUND/BACKGROUND.mp4");
-  //callToActionScreen = new Movie(this, "0_CALL_TO_ACTION_SCREEN/CALL_TO_ACTION_SCREEN.mp4");
-  //resetScreen = new Movie(this, "0_TRY_AGAIN_SCREEN/TRY_AGAIN_SCREEN.mp4");
-  //winScreen = new Movie(this, "0_WIN_SCREEN/WIN_SCREEN.mp4");
+  callToActionScreen = new Movie(this, "0_CALL_TO_ACTION_SCREEN/CALL_TO_ACTION_SCREEN.mp4");
+  resetScreen = new Movie(this, "0_TRY_AGAIN_SCREEN/TRY_AGAIN_SCREEN.mp4");
+  winScreen = new Movie(this, "0_WIN_SCREEN/WIN_SCREEN.mp4");
   //comboVideo1 = new Movie(this, "6_WINNING_MOVE_1/WINNING_MOVE_1_VID.mp4");
   //comboVideo2 = new Movie(this, "6_WINNING_MOVE_2/WINNING_MOVE_2_VID.mp4");
   //comboVideo3 = new Movie(this, "6_WINNING_MOVE_3/WINNING_MOVE_3_VID.mp4");
@@ -232,20 +232,20 @@ void draw(){
     case 0:
     //call to action sound
     introSound.play();
-    //callToActionScreen.loop();
-    //image(callToActionScreen, 0, 0);
+    callToActionScreen.loop();
+    image(callToActionScreen, 0, 0);
     gameState = 1;
     break;
 
     case 1:
     //call to action
     // callToActionScreen.loop();
-    //image(callToActionScreen, 0, 0);
+    image(callToActionScreen, 0, 0);
     break;
 
     case 2:
     //play begin sound
-    //callToActionScreen.stop();
+    callToActionScreen.stop();
     masterTimer = millis();
     beginSound.play();
     gameState = 11;
@@ -294,37 +294,37 @@ void draw(){
     //victory sound
     int tmp = (int)random(0, 4);
     winSound[tmp].play();
-    //winScreen.play();
-    //image(winScreen, 0, 0);
+    winScreen.play();
+    image(winScreen, 0, 0);
     gameState = 6;
     break;
 
     case 6:
     //victory screen
-    //image(winScreen, 0, 0);
-    //if(winScreen.time() >= winScreen.duration()){
-    //  gameState = 9;
-    //  winScreen.jump(0);
-    //  winScreen.stop();
-    //}
+    image(winScreen, 0, 0);
+    if(winScreen.time() >= winScreen.duration()){
+      gameState = 9;
+      winScreen.jump(0);
+      winScreen.stop();
+    }
     break;
 
     case 7:
     //failure sound
     resetSound.play();
-    //resetScreen.play();
-    //image(resetScreen, 0, 0);
+    resetScreen.play();
+    image(resetScreen, 0, 0);
     gameState = 8;
     break;
 
     case 8:
     //failure screen
-    //image(resetScreen, 0, 0);
-    //if(resetScreen.time() >= resetScreen.duration()){
-    //  resetScreen.jump(0);
-    //  resetScreen.stop();
-    //  gameState = 10;
-    //}
+    image(resetScreen, 0, 0);
+    if(resetScreen.time() >= resetScreen.duration()){
+      resetScreen.jump(0);
+      resetScreen.stop();
+      gameState = 10;
+    }
     break;
 
     case 10:
