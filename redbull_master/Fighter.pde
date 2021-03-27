@@ -301,6 +301,7 @@ class Fighter {
       inputsAllow[3] = false;
     }
     //display the combo stream for debugging
+    fill(0);
     textSize(100);
     text(comboStream, 1000, 200);
 
@@ -322,8 +323,8 @@ class Fighter {
 
     if(comboStream.substring(3, 6).equals("drp")){
       //Tekken Yoshimitsu Soul Stealer QCF + P: DRP
-        textSize(100);
-        text("One: COMBO COMPLETED: drpss", 10, 100);
+        //textSize(100);
+        //text("One: COMBO COMPLETED: drpss", 10, 100);
         gameState = 4;
         currAnim = combo1;
         //background.stop();
@@ -331,24 +332,24 @@ class Fighter {
         comboReady = 1;
     } else if (comboStream.substring(3, 6).equals("rrk")){
       //Tekken 7 Eddy Combo FF+4: ffk
-        textSize(100);
-        text("Two: COMBO COMPLETED: ffk", 10, 100);
+        //textSize(100);
+        //text("Two: COMBO COMPLETED: ffk", 10, 100);
         gameState = 4;
         currAnim = combo2;
         //background.stop(); 
         comboReady = 2;
     } else if (comboStream.substring(0, 6).equals("ldrkkp")){
       //soul calibur type combo
-        textSize(100);
-        text("Three: COMBO COMPLETED: ldrkkp", 10, 100);
+        //textSize(100);
+        //text("Three: COMBO COMPLETED: ldrkkp", 10, 100);
         gameState = 4;
         currAnim = combo3;
         //background.stop();
         comboReady = 3;
     } else if (comboStream.substring(0, 6).equals("lrpukp")){
       // the devtron rhubarb special
-        textSize(100);
-        text("Four: COMBO COMPLETED: lrpukp", 10, 100);
+        //textSize(100);
+        //text("Four: COMBO COMPLETED: lrpukp", 10, 100);
         gameState = 4;
         currAnim = combo4;
         //background.stop();

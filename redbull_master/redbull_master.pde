@@ -9,6 +9,9 @@ String val;     // Data received from the serial port
 String[] list;
 int inputs[] = {0, 0, 0, 0, 0, 0}; //button inputs from arduino
 int prevInputs[] = {0, 0, 0, 0, 0, 0}; // left, right, up, down, punch, kick
+int comboSigTime = 0;
+int comboSigTimeout = 6000;
+boolean comboSent = false; 
 
 //font for timer
 PFont fightingFont;
@@ -73,6 +76,9 @@ void loadAssets(){
   callToActionScreen = new Movie(this, "0_CALL_TO_ACTION_SCREEN/CALL_TO_ACTION_SCREEN.mp4");
   resetScreen = new Movie(this, "0_TRY_AGAIN_SCREEN/TRY_AGAIN_SCREEN.mp4");
   winScreen = new Movie(this, "0_WIN_SCREEN/WIN_SCREEN.mp4");
+  callToActionScreen.frameRate(20);
+  resetScreen.frameRate(20);
+  winScreen.frameRate(20);
   //comboVideo1 = new Movie(this, "6_WINNING_MOVE_1/WINNING_MOVE_1_VID.mp4");
   //comboVideo2 = new Movie(this, "6_WINNING_MOVE_2/WINNING_MOVE_2_VID.mp4");
   //comboVideo3 = new Movie(this, "6_WINNING_MOVE_3/WINNING_MOVE_3_VID.mp4");
@@ -234,6 +240,16 @@ void readTeensy(){
          teensyKeyReleased(i);
        }
      }
+     
+     //if winning combo has been done, send signal to arduino to release the drink
+     if(gameState == 6 && !comboSent){
+       myPort.clear();
+       myPort.write("c");
+       comboSent = true;
+       comboSigTime = millis() + comboSigTimeout;
+     }
+     if (millis() > comboSigTime) comboSent = false;
+      myPort.clear();
 }
 
 //Replicating functionality of builtin keyPressed() function for serial data from teensy
@@ -298,6 +314,18 @@ void teensyKeyReleased(int code){
 void setup() {
   size(1920, 1080);
   frameRate(20);
+  
+    //get font ready
+  fightingFont = createFont("FONTS/hollowpoint.ttf", 64);
+  textFont(fightingFont);
+  
+  textSize(200);
+  fill(255);
+  textAlign(CENTER);
+  background(0, 200, 140);
+  text("loading...", width/2, height/2);
+  textAlign(LEFT);
+  //noLoop();
   //load images, videos and sounds
   loadAssets();
 
@@ -305,16 +333,16 @@ void setup() {
   String portName = Serial.list()[0]; //change the 0 to a 1 or 2 etc. to match your port
   myPort = new Serial(this, portName, 9600);
 
-  //get font ready
-  fightingFont = createFont("FONTS/hollowpoint.ttf", 64);
-  textFont(fightingFont);
+
 
   bgMusic.loop();
   masterTimer = millis();
+  //loop();
 }
 
 void draw(){
   //background(255);
+  //TO USE TEENSY INPUTS, UNCOMMENT THE FOLLOWING LINE AND COMMENT OUT keyPressed() AND keyReleased() functions
   switch (gameState){
     case 0:
     //call to action sound
@@ -431,13 +459,4 @@ void draw(){
     gameState = 0;
     break;
   }
-
-     //if(fighter.comboState == 4 && !comboSent){
-     //  myPort.clear();
-     //  myPort.write("c");
-     //  comboSent = true;
-     //  comboSigTime = millis() + comboSigTimeout;
-     //}
-     //if (millis() > comboSigTime) comboSent = false;
-     // myPort.clear();
 }
