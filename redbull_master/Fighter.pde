@@ -104,7 +104,7 @@ class Fighter {
     // We must convert the float index to an int first!
     int imageIndex = int(index);
     if (comboReady == 0){
-      image(currAnim[imageIndex], pos.x, pos.y);
+      image(currAnim[imageIndex], pos.x + 400, pos.y + 200);
     } else {
       image(currAnim[imageIndex], 0, 0);
     }
@@ -326,7 +326,7 @@ class Fighter {
         text("One: COMBO COMPLETED: drpss", 10, 100);
         gameState = 4;
         currAnim = combo1;
-        //background.stop();
+        background.stop();
         // image(winner, 100, 100);
         comboReady = 1;
     } else if (comboStream.substring(3, 6).equals("rrk")){
@@ -335,7 +335,7 @@ class Fighter {
         text("Two: COMBO COMPLETED: ffk", 10, 100);
         gameState = 4;
         currAnim = combo2;
-        //background.stop(); 
+        background.stop(); 
         comboReady = 2;
     } else if (comboStream.substring(0, 6).equals("ldrkkp")){
       //soul calibur type combo
@@ -343,7 +343,7 @@ class Fighter {
         text("Three: COMBO COMPLETED: ldrkkp", 10, 100);
         gameState = 4;
         currAnim = combo3;
-        //background.stop();
+        background.stop();
         comboReady = 3;
     } else if (comboStream.substring(0, 6).equals("lrpukp")){
       // the devtron rhubarb special
@@ -351,7 +351,7 @@ class Fighter {
         text("Four: COMBO COMPLETED: lrpukp", 10, 100);
         gameState = 4;
         currAnim = combo4;
-        //background.stop();
+        background.stop();
         comboReady = 4;
     }
 
