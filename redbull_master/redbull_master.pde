@@ -8,6 +8,7 @@ Serial myPort;  // Create object from Serial class
 String val;     // Data received from the serial port
 String[] list;
 int inputs[] = {0, 0, 0, 0, 0, 0}; //button inputs from arduino
+int prevInputs[] = {0, 0, 0, 0, 0, 0}; // left, right, up, down, punch, kick
 
 //font for timer
 PFont fightingFont;
@@ -208,6 +209,92 @@ void keyReleased(){
   }
 }
 
+void readTeensy(){
+      //read inputs from arduino
+     if ( myPort.available() > 0)
+       {  // If data is available,
+
+           val = myPort.readStringUntil('\n');       // read it and store it in val
+           //println(val);
+           if (val != null){
+
+             list = split(val, "a");
+             for (int i = 0; i < list.length-1; i++){
+               prevInputs[i] = inputs[i];
+               inputs[i] = Integer.parseInt(list[i]);
+             }
+             println(inputs);
+             println("END PACKET");
+           }
+     }
+     for (int i = 0; i < 6; i++){
+       if (inputs[i] == 1 && prevInputs[i] == 0){
+         teensyKeyPressed(i);
+       } else if (inputs[i] == 0 && prevInputs[i] == 1){
+         teensyKeyReleased(i);
+       }
+     }
+}
+
+//Replicating functionality of builtin keyPressed() function for serial data from teensy
+void teensyKeyPressed(int code){
+    if (gameState == 1){
+    gameState = 2;
+  }
+
+//  if (code == 'z'){
+//    println("punch");
+//    inputs[4] = 1;
+//  } else if (key == 'x'){
+//    inputs[5] = 1;
+//    println("kick");
+//  } else if (key == 'r'){
+//    gameState = 7;
+//  }
+//  if (key == CODED) {
+//    if (keyCode == LEFT){
+//      inputs[0] = 1;
+//    }
+//    if (keyCode == RIGHT){
+//      inputs[1] = 1;
+//    }
+//    if (keyCode == UP){
+//      inputs[2] = 1;
+//    }
+//    if (keyCode == DOWN){
+//      inputs[3] = 1;
+//    }
+//  }
+}
+
+//Replicating functionality of builtin keyPressed() function for serial data from teensy
+void teensyKeyReleased(int code){
+      if (code == 4){
+    println("punch");
+    inputs[4] = 0;
+    fighter.punchAllow = true;
+    fighter.punching = false;
+  } else if (code == 5){
+    inputs[5] = 0;
+    println("kick");
+    fighter.kickAllow = true;
+    fighter.kicking = false;
+  }
+    if (code == 0){
+      inputs[0] = 0;
+      fighter.inputsAllow[0] = true;
+    } else if (code == 1){
+      inputs[1] = 0;
+      fighter.inputsAllow[1] = true;
+    } else if (code == 2){
+      inputs[2] = 0;
+      fighter.inputsAllow[2] = true;
+    } else if (code == 3){
+      inputs[3] = 0;
+      fighter.inputsAllow[3] = true;
+    }
+}
+
 void setup() {
   size(1920, 1080);
   frameRate(20);
@@ -215,8 +302,8 @@ void setup() {
   loadAssets();
 
   //initialize serial comm
-  //String portName = Serial.list()[1]; //change the 0 to a 1 or 2 etc. to match your port
-  //myPort = new Serial(this, portName, 9600);
+  String portName = Serial.list()[0]; //change the 0 to a 1 or 2 etc. to match your port
+  myPort = new Serial(this, portName, 9600);
 
   //get font ready
   fightingFont = createFont("FONTS/hollowpoint.ttf", 64);
@@ -345,29 +432,12 @@ void draw(){
     break;
   }
 
-    //read inputs from arduino
-    // if ( myPort.available() > 0)
-    //   {  // If data is available,
-
-    //       val = myPort.readStringUntil('\n');       // read it and store it in val
-    //       //println(val);
-    //       if (val != null){
-
-    //         list = split(val, "a");
-    //         for (int i = 0; i < list.length-1; i++){
-    //           inputs[i] = Integer.parseInt(list[i]);
-    //         }
-    //         //println(inputs);
-    //         //println("END PACKET");
-    //       }
-    // }
-
-    // if(fighter.comboState == 4 && !comboSent){
-    //   myPort.clear();
-    //   myPort.write("c");
-    //   comboSent = true;
-    //   comboSigTime = millis() + comboSigTimeout;
-    // }
-    // if (millis() > comboSigTime) comboSent = false;
-    //  myPort.clear();
+     //if(fighter.comboState == 4 && !comboSent){
+     //  myPort.clear();
+     //  myPort.write("c");
+     //  comboSent = true;
+     //  comboSigTime = millis() + comboSigTimeout;
+     //}
+     //if (millis() > comboSigTime) comboSent = false;
+     // myPort.clear();
 }
