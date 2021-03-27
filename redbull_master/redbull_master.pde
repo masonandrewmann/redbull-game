@@ -14,7 +14,7 @@ PFont fightingFont;
 
 //assets
 Fighter fighter;    //our fighter
-Movie background;   //background image
+//Movie background;   //background image
 //Movie callToActionScreen; //intro screen
 //Movie winScreen;
 //Movie resetScreen;
@@ -22,6 +22,7 @@ Movie background;   //background image
 //Movie comboVideo2;  //combo video
 //Movie comboVideo3;  //combo video
 //Movie comboVideo4;  //combo video
+PImage staticBackground;
 PImage playerOverlay;  //player healthbar
 PImage[] comboBar = new PImage[11];
 
@@ -67,7 +68,7 @@ float bgDimmer = 0;
 
 void loadAssets(){
   //load the MP4s
-  background = new Movie(this, "0_BACKGROUND/BACKGROUND.mp4");
+  //background = new Movie(this, "0_BACKGROUND/BACKGROUND.mp4");
   //callToActionScreen = new Movie(this, "0_CALL_TO_ACTION_SCREEN/CALL_TO_ACTION_SCREEN.mp4");
   //resetScreen = new Movie(this, "0_TRY_AGAIN_SCREEN/TRY_AGAIN_SCREEN.mp4");
   //winScreen = new Movie(this, "0_WIN_SCREEN/WIN_SCREEN.mp4");
@@ -75,6 +76,7 @@ void loadAssets(){
   //comboVideo2 = new Movie(this, "6_WINNING_MOVE_2/WINNING_MOVE_2_VID.mp4");
   //comboVideo3 = new Movie(this, "6_WINNING_MOVE_3/WINNING_MOVE_3_VID.mp4");
   //comboVideo4 = new Movie(this, "6_WINNING_MOVE_4/WINNING_MOVE_4_VID.mp4");
+  staticBackground = loadImage("0_BACKGROUND/BACKGROUND.png");
 
   //load the PNGs
   for (int i = 0; i < 7; i++){
@@ -251,13 +253,13 @@ void draw(){
 
     case 11:
     //prepare for gameplay
-    background.loop();
+    //background.loop();
     gameState = 3;
     break;
 
     case 3:
     //gameplay
-      image(background, 0, 0);
+      image(staticBackground, 0, 0);
       // Display, cycle, and move all the animation objects
       fighter.decideAction(inputs);
       fighter.move();
@@ -276,7 +278,7 @@ void draw(){
 
     case 4:
     //winning combo
-      image(background, 0, 0);
+      image(staticBackground, 0, 0);
       noStroke();
       fill(0, bgDimmer);
       bgDimmer += 5;
