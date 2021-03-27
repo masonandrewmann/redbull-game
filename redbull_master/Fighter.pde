@@ -76,9 +76,9 @@ class Fighter {
     acc = new PVector(0, 0);
 
     groundHeight = y_ - 50;
-    mass = 10;
+    mass = 20;
 
-    frameSpeed = 0.2;
+    frameSpeed = 0.8;
     // Starting at the beginning
     index = 0;
     comboState1 = 0;
@@ -166,7 +166,7 @@ class Fighter {
     if (!attacking){
       //movement
       if (left == 1){
-        vel.x = -8;
+        vel.x = -20;
         //enter walking state if not in the air
         if (pos.y >= groundHeight){
           if (currAnim != walkLeft) index = 0;
@@ -175,7 +175,7 @@ class Fighter {
         }
         // index = 0;
       } else if (right == 1){
-        vel.x = 8;
+        vel.x = 20;
         //enter walking state if not in the air
         if (pos.y >= groundHeight){
           if (currAnim != walkRight) index = 0;
@@ -205,7 +205,7 @@ class Fighter {
         }
         // index = 0;
 
-        if (pos.y == groundHeight) vel.y = -16;
+        if (pos.y == groundHeight) vel.y = -25;
     }
 
     if (pos.y < groundHeight){
