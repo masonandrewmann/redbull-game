@@ -325,24 +325,23 @@ void setup() {
   background(0, 200, 140);
   text("loading...", width/2, height/2);
   textAlign(LEFT);
-  //noLoop();
   //load images, videos and sounds
   loadAssets();
 
   //initialize serial comm
-  String portName = Serial.list()[0]; //change the 0 to a 1 or 2 etc. to match your port
-  myPort = new Serial(this, portName, 9600);
-
+  //String portName = Serial.list()[0]; //change the 0 to a 1 or 2 etc. to match your port
+  //myPort = new Serial(this, portName, 9600);
+  //hi
 
 
   bgMusic.loop();
   masterTimer = millis();
-  //loop();
 }
 
 void draw(){
   //background(255);
   //TO USE TEENSY INPUTS, UNCOMMENT THE FOLLOWING LINE AND COMMENT OUT keyPressed() AND keyReleased() functions
+  // readTeensy();
   switch (gameState){
     case 0:
     //call to action sound
@@ -354,7 +353,6 @@ void draw(){
 
     case 1:
     //call to action
-    // callToActionScreen.loop();
     image(callToActionScreen, 0, 0);
     break;
 
