@@ -85,6 +85,7 @@ int masterTimer = 0;
 
 float bgDimmer = 0;
 
+int timeLimit = 40; //seconds allowed
 
 
 
@@ -411,7 +412,7 @@ public void draw() {
     image(playerOverlay, 0, 0);
     image(comboBar[fighter.comboMeterNum], 0, 0);
     //timer
-    int currTime = 20 - (millis() - masterTimer)/1000;
+    int currTime = timeLimit - (millis() - masterTimer)/1000;
     text("TIMER: " + currTime, 1300, 100);
     if (currTime <= 0) {
       gameState = 7;

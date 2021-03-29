@@ -8,7 +8,7 @@ Serial myPort;  // Create object from Serial class
 String val;     // Data received from the serial port
 String[] list;
 int inputs[] = {0, 0, 0, 0, 0, 0, 0}; //button inputs from arduino
-int prevInputs[] = {0, 0, 0, 0, 0, 0, 0}; // left, right, up, down, punch, kick
+int prevInputs[] = {0, 0, 0, 0, 0, 0, 0}; // left, right, up, down, punch, kick, reset
 int comboSigTime = 0;
 int comboSigTimeout = 6000;
 boolean comboSent = false;
@@ -65,6 +65,7 @@ int masterTimer = 0;
 
 float bgDimmer = 0;
 
+int timeLimit = 40; //seconds allowed
 
 
 
@@ -152,69 +153,69 @@ void movieEvent(Movie m) {
   m.read();
 }
 
-// void keyPressed(){
-//  if (gameState == 1){
-//    gameState = 2;
-//  }
+void keyPressed(){
+ if (gameState == 1){
+   gameState = 2;
+ }
 
-//  if (key == 'z'){
-//    println("punch");
-//    inputs[4] = 1;
-//  } else if (key == 'x'){
-//    inputs[5] = 1;
-//    println("kick");
-//  } else if (key == 'r'){
-//    gameState = 7;
-//  }
-//  if (key == CODED) {
-//    if (keyCode == LEFT){
-//      inputs[0] = 1;
-//    }
-//    if (keyCode == RIGHT){
-//      inputs[1] = 1;
-//    }
-//    if (keyCode == UP){
-//      inputs[2] = 1;
-//    }
-//    if (keyCode == DOWN){
-//      inputs[3] = 1;
-//    }
-//  }
-// }
+ if (key == 'z'){
+   println("punch");
+   inputs[4] = 1;
+ } else if (key == 'x'){
+   inputs[5] = 1;
+   println("kick");
+ } else if (key == 'r'){
+   gameState = 7;
+ }
+ if (key == CODED) {
+   if (keyCode == LEFT){
+     inputs[0] = 1;
+   }
+   if (keyCode == RIGHT){
+     inputs[1] = 1;
+   }
+   if (keyCode == UP){
+     inputs[2] = 1;
+   }
+   if (keyCode == DOWN){
+     inputs[3] = 1;
+   }
+ }
+}
 
-// void keyReleased(){
-//    if (key == 'z'){
-//    println("punch");
-//    inputs[4] = 0;
-//    fighter.punchAllow = true;
-//    fighter.punching = false;
-//  } else if (key == 'x'){
-//    inputs[5] = 0;
-//    println("kick");
-//    fighter.kickAllow = true;
-//    fighter.kicking = false;
-//  }
+void keyReleased(){
+   if (key == 'z'){
+   println("punch");
+   inputs[4] = 0;
+   fighter.punchAllow = true;
+   fighter.punching = false;
+ } else if (key == 'x'){
+   inputs[5] = 0;
+   println("kick");
+   fighter.kickAllow = true;
+   fighter.kicking = false;
+ }
 
-//  if (key == CODED) {
-//    if (keyCode == LEFT){
-//      inputs[0] = 0;
-//      fighter.inputsAllow[0] = true;
-//    }
-//    if (keyCode == RIGHT){
-//      inputs[1] = 0;
-//      fighter.inputsAllow[1] = true;
-//    }
-//    if (keyCode == UP){
-//      inputs[2] = 0;
-//      fighter.inputsAllow[2] = true;
-//      fighter.jumpAllow = true;
-//    }
-//    if (keyCode == DOWN){
-//      inputs[3] = 0;
-//      fighter.inputsAllow[3] = true;
-//    }
-//  }
-// }
+ if (key == CODED) {
+   if (keyCode == LEFT){
+     inputs[0] = 0;
+     fighter.inputsAllow[0] = true;
+   }
+   if (keyCode == RIGHT){
+     inputs[1] = 0;
+     fighter.inputsAllow[1] = true;
+   }
+   if (keyCode == UP){
+     inputs[2] = 0;
+     fighter.inputsAllow[2] = true;
+     fighter.jumpAllow = true;
+   }
+   if (keyCode == DOWN){
+     inputs[3] = 0;
+     fighter.inputsAllow[3] = true;
+   }
+ }
+}
 
 void readTeensy() {
   //read inputs from arduino
@@ -234,7 +235,7 @@ void readTeensy() {
       println("END PACKET");
     }
   }
-  for (int i = 0; i < 6; i++) {
+  for (int i = 0; i < 7; i++) {
     if (inputs[i] == 1 && prevInputs[i] == 0) {
       teensyKeyPressed(i);
     } else if (inputs[i] == 0 && prevInputs[i] == 1) {
@@ -264,6 +265,11 @@ void readTeensy() {
 void teensyKeyPressed(int code) {
   if (gameState == 1) {
     gameState = 2;
+  }
+
+  //reset button pressed
+  if (code == 6) {
+    gameState = 7;
   }
 
   //  if (code == 'z'){
@@ -338,9 +344,8 @@ void setup() {
   loadAssets();
 
   //initialize serial comm
-  String portName = Serial.list()[0]; //change the 0 to a 1 or 2 etc. to match your port
-  myPort = new Serial(this, portName, 9600);
-  //hi
+  // String portName = Serial.list()[0]; //change the 0 to a 1 or 2 etc. to match your port
+  // myPort = new Serial(this, portName, 9600);
 
 
   bgMusic.loop();
@@ -350,7 +355,7 @@ void setup() {
 void draw() {
   //background(255);
   //TO USE TEENSY INPUTS, UNCOMMENT THE FOLLOWING LINE AND COMMENT OUT keyPressed() AND keyReleased() functions
-  readTeensy();
+  // readTeensy();
   switch (gameState) {
   case 0:
     //call to action sound
@@ -391,7 +396,7 @@ void draw() {
     image(playerOverlay, 0, 0);
     image(comboBar[fighter.comboMeterNum], 0, 0);
     //timer
-    int currTime = 20 - (millis() - masterTimer)/1000;
+    int currTime = timeLimit - (millis() - masterTimer)/1000;
     text("TIMER: " + currTime, 1300, 100);
     if (currTime <= 0) {
       gameState = 7;
