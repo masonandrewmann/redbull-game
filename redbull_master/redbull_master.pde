@@ -255,8 +255,8 @@ void readTeensy() {
   }
   if (millis() > comboSigTime) comboSent = false;
   myPort.clear();
-  print("has the combo been sent?");
-  println(comboSent);
+  //print("has the combo been sent?");
+  //println(comboSent);
 }
 
 //Replicating functionality of builtin keyPressed() function for serial data from teensy
