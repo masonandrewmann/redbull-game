@@ -27,6 +27,7 @@ class Fighter {
   boolean[] inputsAllow = {false, false, false, false, false, false};
   boolean kickAllow;
   boolean punchAllow;
+  boolean jumpAllow;
   boolean punching;
   boolean kicking;
   boolean playWinSound;
@@ -93,6 +94,7 @@ class Fighter {
     attackTimeout = false;
     punchAllow = true;
     kickAllow = true;
+    jumpAllow = true;
     punching = false;
     kicking = false;
     comboMeterNum = 0;
@@ -195,13 +197,15 @@ class Fighter {
         //index = 0;
       }
 
-      if (up == 1){
+      if (up == 1 && jumpAllow){
         if (facingRight){
           // if (currAnim != jumpRight) index = 0;
           currAnim = jumpRight;
+          jumpAllow = false;
         } else {
           // if (currAnim != jumpLeft) index = 0;
           currAnim = jumpLeft;
+          jumpAllow = false;
         }
         // index = 0;
 
@@ -336,7 +340,7 @@ class Fighter {
         //text("Two: COMBO COMPLETED: ffk", 10, 100);
         gameState = 4;
         currAnim = combo2;
-        //background.stop(); 
+        //background.stop();
         comboReady = 2;
     } else if (comboStream.substring(0, 6).equals("ldrkkp")){
       //soul calibur type combo
