@@ -25,6 +25,7 @@
 #define BOTTOM3 4
 #define RESETPIN 20
 #define RELAYPIN 21
+#define LEDPIN 13
 int left;
 int right;
 int up;
@@ -36,6 +37,7 @@ int bottom1;
 int bottom2;
 int bottom3;
 int resetbutton;
+
 
 
 int incomingByte = 0;
@@ -58,20 +60,21 @@ void setup() {
     pinMode(inputPins[i], INPUT_PULLUP);
   }
   pinMode(RELAYPIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, LOW);
+  pinMode(LEDPIN, OUTPUT);
 }
 
 
-void loop()
-{
-  digitalWrite(LED_BUILTIN, LOW);
+void loop() {
+  digitalWrite(LEDPIN, LOW);
   if (Serial.available() > 0) {
     incomingByte = Serial.read();
-    digitalWrite(LED_BUILTIN, HIGH);
-    //    if (incomingByte == 'c'){
-    //        Serial.println(incomingByte);
-
-    //    }
+    digitalWrite(LEDPIN, HIGH);
+    if (incomingByte == 'c') {
+      Serial.println(incomingByte);
+      digitalWrite(RELAYPIN, HIGH);
+      delay(1000);
+      digitalWrite(RELAYPIN, LOW);
+    }
   }
   //read inputs
   for (int i = 0; i < 11; i++) {
@@ -99,15 +102,15 @@ void loop()
   }
   //send inputs
   if (millis() > targetTime)
-    for (int i = 0; i < 11; i++) {
-      Serial.print(inputsRead[i]);
+    //    for (int i = 0; i < 11; i++) {
+    //      Serial.print(inputsRead[i]);
+    //      Serial.print("a");
+    //    }
+    //  Serial.print("filtered inputs");
+    for (int i = 0; i < 7; i++) {
+      Serial.print(inputs[i]);
       Serial.print("a");
     }
-  Serial.print("filtered inputs");
-  for (int i = 0; i < 7; i++) {
-    Serial.print(inputs[i]);
-    Serial.print("b");
-  }
 
   // end byte
   Serial.print("\n");
