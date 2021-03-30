@@ -269,7 +269,7 @@ void teensyKeyPressed(int code) {
 
   //reset button pressed
   if (code == 6) {
-    gameState = 7;
+    gameState = 0;
   }
 
   //  if (code == 'z'){
