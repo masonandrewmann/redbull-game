@@ -153,69 +153,69 @@ void movieEvent(Movie m) {
   m.read();
 }
 
-void keyPressed() {
-  if (gameState == 1) {
-    gameState = 2;
-  }
+//void keyPressed() {
+//  if (gameState == 1) {
+//    gameState = 2;
+//  }
 
-  if (key == 'z') {
-    println("punch");
-    inputs[4] = 1;
-  } else if (key == 'x') {
-    inputs[5] = 1;
-    println("kick");
-  } else if (key == 'r') {
-    gameState = 7;
-  }
-  if (key == CODED) {
-    if (keyCode == LEFT) {
-      inputs[0] = 1;
-    }
-    if (keyCode == RIGHT) {
-      inputs[1] = 1;
-    }
-    if (keyCode == UP) {
-      inputs[2] = 1;
-    }
-    if (keyCode == DOWN) {
-      inputs[3] = 1;
-    }
-  }
-}
+//  if (key == 'z') {
+//    println("punch");
+//    inputs[4] = 1;
+//  } else if (key == 'x') {
+//    inputs[5] = 1;
+//    println("kick");
+//  } else if (key == 'r') {
+//    gameState = 7;
+//  }
+//  if (key == CODED) {
+//    if (keyCode == LEFT) {
+//      inputs[0] = 1;
+//    }
+//    if (keyCode == RIGHT) {
+//      inputs[1] = 1;
+//    }
+//    if (keyCode == UP) {
+//      inputs[2] = 1;
+//    }
+//    if (keyCode == DOWN) {
+//      inputs[3] = 1;
+//    }
+//  }
+//}
 
-void keyReleased() {
-  if (key == 'z') {
-    println("punch");
-    inputs[4] = 0;
-    fighter.punchAllow = true;
-    fighter.punching = false;
-  } else if (key == 'x') {
-    inputs[5] = 0;
-    println("kick");
-    fighter.kickAllow = true;
-    fighter.kicking = false;
-  }
+//void keyReleased() {
+//  if (key == 'z') {
+//    println("punch");
+//    inputs[4] = 0;
+//    fighter.punchAllow = true;
+//    fighter.punching = false;
+//  } else if (key == 'x') {
+//    inputs[5] = 0;
+//    println("kick");
+//    fighter.kickAllow = true;
+//    fighter.kicking = false;
+//  }
 
-  if (key == CODED) {
-    if (keyCode == LEFT) {
-      inputs[0] = 0;
-      fighter.inputsAllow[0] = true;
-    }
-    if (keyCode == RIGHT) {
-      inputs[1] = 0;
-      fighter.inputsAllow[1] = true;
-    }
-    if (keyCode == UP) {
-      inputs[2] = 0;
-      fighter.inputsAllow[2] = true;
-      fighter.jumpAllow = true;
-    }
-    if (keyCode == DOWN) {
-      inputs[3] = 0;
-      fighter.inputsAllow[3] = true;
-    }
-  }
-}
+//  if (key == CODED) {
+//    if (keyCode == LEFT) {
+//      inputs[0] = 0;
+//      fighter.inputsAllow[0] = true;
+//    }
+//    if (keyCode == RIGHT) {
+//      inputs[1] = 0;
+//      fighter.inputsAllow[1] = true;
+//    }
+//    if (keyCode == UP) {
+//      inputs[2] = 0;
+//      fighter.inputsAllow[2] = true;
+//      fighter.jumpAllow = true;
+//    }
+//    if (keyCode == DOWN) {
+//      inputs[3] = 0;
+//      fighter.inputsAllow[3] = true;
+//    }
+//  }
+//}
 
 void readTeensy() {
   //read inputs from arduino
@@ -355,7 +355,7 @@ void setup() {
 void draw() {
   //background(255);
   //TO USE TEENSY INPUTS, UNCOMMENT THE FOLLOWING LINE AND COMMENT OUT keyPressed() AND keyReleased() functions
-  //readTeensy();
+  readTeensy();
   switch (gameState) {
   case 0:
     //call to action sound
@@ -397,7 +397,11 @@ void draw() {
     image(comboBar[fighter.comboMeterNum], 0, 0);
     //timer
     int currTime = timeLimit - (millis() - masterTimer)/1000;
-    text("TIMER: " + currTime, 1300, 100);
+    fill(255);
+    textSize(100);
+    text(currTime, 625, 115);
+    fill(0);
+    text(currTime, 627, 117);
     if (currTime <= 0) {
       gameState = 7;
     }
@@ -429,12 +433,7 @@ void draw() {
   case 6:
     //victory screen
     image(winScreen, 0, 0);
-    println("win screentime: ");
-    println(winScreen.time());
-    println("win screen duration: ");
-    println(winScreen.duration());
     if (winScreen.time()+.05 >= winScreen.duration()) {
-      println("are we in the loop");
       gameState = 9;
       winScreen.jump(0);
       winScreen.stop();
@@ -452,7 +451,7 @@ void draw() {
   case 8:
     //failure screen
     image(resetScreen, 0, 0);
-    if (resetScreen.time() >= resetScreen.duration()) {
+    if (resetScreen.time()+.05 >= resetScreen.duration()) {
       resetScreen.jump(0);
       resetScreen.stop();
       gameState = 10;

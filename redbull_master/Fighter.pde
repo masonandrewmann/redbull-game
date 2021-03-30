@@ -305,9 +305,9 @@ class Fighter {
       inputsAllow[3] = false;
     }
     //display the combo stream for debugging
-    fill(0);
-    textSize(100);
-    text(comboStream, 1000, 200);
+    //fill(0);
+    //textSize(100);
+    //text(comboStream, 1000, 200);
 
     comboMeterNum = 0;
     //calculate the combo meter value
