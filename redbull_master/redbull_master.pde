@@ -65,7 +65,7 @@ int masterTimer = 0;
 
 float bgDimmer = 0;
 
-int timeLimit = 40; //seconds allowed
+int timeLimit = 60; //seconds allowed
 
 
 
@@ -73,7 +73,7 @@ int timeLimit = 40; //seconds allowed
 
 void loadAssets() {
   //load the MP4s
-  //background = new Movie(this, "0_BACKGROUND/BACKGROUND.mp4");
+  // background = new Movie(this, "0_BACKGROUND/BACKGROUND.mp4");
   callToActionScreen = new Movie(this, "0_CALL_TO_ACTION_SCREEN/CALL_TO_ACTION_SCREEN.mov");
   resetScreen = new Movie(this, "0_TRY_AGAIN_SCREEN/TRY_AGAIN_SCREEN.mov");
   winScreen = new Movie(this, "0_WIN_SCREEN/WIN_SCREEN.mov");
@@ -94,9 +94,15 @@ void loadAssets() {
     kickRight[i] = loadImage("2_RIGHT_KICK/RIGHT_KICK_FRAME_" + (i+1) + ".png");
     punchLeft[i] = loadImage("3_LEFT_PUNCH/LEFT_PUNCH_FRAME_" + (i+1) + ".png");
     punchRight[i] = loadImage("3_RIGHT_PUNCH/RIGHT_PUNCH_FRAME_" + (i+1) + ".png");
-    jumpLeft[i] = loadImage("4_LEFT_JUMP/LEFT_JUMP_FRAME_" + (i+1) + ".png");
-    jumpRight[i] = loadImage("4_RIGHT_JUMP/RIGHT_JUMP_FRAME_" + (i+1) + ".png");
+    jumpLeft[i] = loadImage("4_LEFT_JUMP/LEFT_JUMP_FRAME_" + (2) + ".png");
+    jumpRight[i] = loadImage("4_RIGHT_JUMP/RIGHT_JUMP_FRAME_" + (2) + ".png");
   }
+  //hacky solution to fix glitchy jump, just remove starting/ending standing frames because they don't add much anyway
+  // jumpLeft[0] = jumpLeft[1];
+  // jumpLeft[6] = jumpLeft[1];
+  // jumpRight[0] = jumpRight[1];
+  // jumpRight[6] = jumpRight[1];
+
   for (int i = 0; i < 9; i++) {
     idleLeft[i] = loadImage("5_LEFT_IDLE_V2/LEFT_IDLE_FRAME_" + (i+1) + "_V2.png");
     idleRight[i] = loadImage("5_RIGHT_IDLE_V2/RIGHT_IDLE_FRAME_" + (i+1) + "_V2.png");
@@ -153,7 +159,7 @@ void movieEvent(Movie m) {
   m.read();
 }
 
-//void keyPressed() {
+// void keyPressed() {
 //  if (gameState == 1) {
 //    gameState = 2;
 //  }
@@ -181,9 +187,9 @@ void movieEvent(Movie m) {
 //      inputs[3] = 1;
 //    }
 //  }
-//}
+// }
 
-//void keyReleased() {
+// void keyReleased() {
 //  if (key == 'z') {
 //    println("punch");
 //    inputs[4] = 0;
@@ -215,7 +221,7 @@ void movieEvent(Movie m) {
 //      fighter.inputsAllow[3] = true;
 //    }
 //  }
-//}
+// }
 
 void readTeensy() {
   //read inputs from arduino
