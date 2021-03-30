@@ -74,9 +74,9 @@ int timeLimit = 40; //seconds allowed
 void loadAssets() {
   //load the MP4s
   //background = new Movie(this, "0_BACKGROUND/BACKGROUND.mp4");
-  callToActionScreen = new Movie(this, "0_CALL_TO_ACTION_SCREEN/CALL_TO_ACTION_SCREEN.mp4");
-  resetScreen = new Movie(this, "0_TRY_AGAIN_SCREEN/TRY_AGAIN_SCREEN.mp4");
-  winScreen = new Movie(this, "0_WIN_SCREEN/WIN_SCREEN.mp4");
+  callToActionScreen = new Movie(this, "0_CALL_TO_ACTION_SCREEN/CALL_TO_ACTION_SCREEN.mov");
+  resetScreen = new Movie(this, "0_TRY_AGAIN_SCREEN/TRY_AGAIN_SCREEN.mov");
+  winScreen = new Movie(this, "0_WIN_SCREEN/WIN_SCREEN.mov");
   callToActionScreen.frameRate(20);
   resetScreen.frameRate(20);
   winScreen.frameRate(20);
@@ -153,69 +153,69 @@ void movieEvent(Movie m) {
   m.read();
 }
 
-// void keyPressed(){
-//  if (gameState == 1){
-//    gameState = 2;
-//  }
+void keyPressed() {
+  if (gameState == 1) {
+    gameState = 2;
+  }
 
-//  if (key == 'z'){
-//    println("punch");
-//    inputs[4] = 1;
-//  } else if (key == 'x'){
-//    inputs[5] = 1;
-//    println("kick");
-//  } else if (key == 'r'){
-//    gameState = 7;
-//  }
-//  if (key == CODED) {
-//    if (keyCode == LEFT){
-//      inputs[0] = 1;
-//    }
-//    if (keyCode == RIGHT){
-//      inputs[1] = 1;
-//    }
-//    if (keyCode == UP){
-//      inputs[2] = 1;
-//    }
-//    if (keyCode == DOWN){
-//      inputs[3] = 1;
-//    }
-//  }
-// }
+  if (key == 'z') {
+    println("punch");
+    inputs[4] = 1;
+  } else if (key == 'x') {
+    inputs[5] = 1;
+    println("kick");
+  } else if (key == 'r') {
+    gameState = 7;
+  }
+  if (key == CODED) {
+    if (keyCode == LEFT) {
+      inputs[0] = 1;
+    }
+    if (keyCode == RIGHT) {
+      inputs[1] = 1;
+    }
+    if (keyCode == UP) {
+      inputs[2] = 1;
+    }
+    if (keyCode == DOWN) {
+      inputs[3] = 1;
+    }
+  }
+}
 
-// void keyReleased(){
-//    if (key == 'z'){
-//    println("punch");
-//    inputs[4] = 0;
-//    fighter.punchAllow = true;
-//    fighter.punching = false;
-//  } else if (key == 'x'){
-//    inputs[5] = 0;
-//    println("kick");
-//    fighter.kickAllow = true;
-//    fighter.kicking = false;
-//  }
+void keyReleased() {
+  if (key == 'z') {
+    println("punch");
+    inputs[4] = 0;
+    fighter.punchAllow = true;
+    fighter.punching = false;
+  } else if (key == 'x') {
+    inputs[5] = 0;
+    println("kick");
+    fighter.kickAllow = true;
+    fighter.kicking = false;
+  }
 
-//  if (key == CODED) {
-//    if (keyCode == LEFT){
-//      inputs[0] = 0;
-//      fighter.inputsAllow[0] = true;
-//    }
-//    if (keyCode == RIGHT){
-//      inputs[1] = 0;
-//      fighter.inputsAllow[1] = true;
-//    }
-//    if (keyCode == UP){
-//      inputs[2] = 0;
-//      fighter.inputsAllow[2] = true;
-//      fighter.jumpAllow = true;
-//    }
-//    if (keyCode == DOWN){
-//      inputs[3] = 0;
-//      fighter.inputsAllow[3] = true;
-//    }
-//  }
-// }
+  if (key == CODED) {
+    if (keyCode == LEFT) {
+      inputs[0] = 0;
+      fighter.inputsAllow[0] = true;
+    }
+    if (keyCode == RIGHT) {
+      inputs[1] = 0;
+      fighter.inputsAllow[1] = true;
+    }
+    if (keyCode == UP) {
+      inputs[2] = 0;
+      fighter.inputsAllow[2] = true;
+      fighter.jumpAllow = true;
+    }
+    if (keyCode == DOWN) {
+      inputs[3] = 0;
+      fighter.inputsAllow[3] = true;
+    }
+  }
+}
 
 void readTeensy() {
   //read inputs from arduino
@@ -327,7 +327,7 @@ void teensyKeyReleased(int code) {
 }
 
 void setup() {
-  size(1920, 1080);
+  size(1280, 720);
   frameRate(20);
 
   //get font ready
@@ -355,7 +355,7 @@ void setup() {
 void draw() {
   //background(255);
   //TO USE TEENSY INPUTS, UNCOMMENT THE FOLLOWING LINE AND COMMENT OUT keyPressed() AND keyReleased() functions
-  readTeensy();
+  //readTeensy();
   switch (gameState) {
   case 0:
     //call to action sound
@@ -429,7 +429,12 @@ void draw() {
   case 6:
     //victory screen
     image(winScreen, 0, 0);
-    if (winScreen.time() >= winScreen.duration()) {
+    println("win screentime: ");
+    println(winScreen.time());
+    println("win screen duration: ");
+    println(winScreen.duration());
+    if (winScreen.time()+.05 >= winScreen.duration()) {
+      println("are we in the loop");
       gameState = 9;
       winScreen.jump(0);
       winScreen.stop();
