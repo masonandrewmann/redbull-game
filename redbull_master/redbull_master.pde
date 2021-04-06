@@ -336,10 +336,8 @@ void initSerial () {
     serialInited = true;
   } 
   catch (RuntimeException e) {
-    if (e.getMessage().contains("<init>")) {
-      System.out.println("port in use, trying again later...");
+      println("port in use, trying again later...");
       serialInited = false;
-    }
   }
 }
 
@@ -362,15 +360,24 @@ void setup() {
 
   //initialize serial comm
   initSerial();
-  
+
   bgMusic.loop();
   masterTimer = millis();
+  delay(2000);
 }
 
 void draw() {
   println("in the draw loop");
   //background(255);
   //TO USE TEENSY INPUTS, UNCOMMENT THE FOLLOWING LINE AND COMMENT OUT keyPressed() AND keyReleased() functions
+  if (myPort.available() > 0) {
+    serialInited = true;
+  } else {
+    serialInited = false;
+    gameState = 9;
+    callToActionScreen.loop();
+    image(callToActionScreen, 0, 0);
+  }
   if (serialInited) {
     println("in the teensy loop");
     // serial is up and running
