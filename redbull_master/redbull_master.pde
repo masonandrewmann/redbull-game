@@ -232,8 +232,8 @@ void readTeensy() {
         prevInputs[i] = inputs[i];
         inputs[i] = Integer.parseInt(list[i]);
       }
-      println(inputs);
-      println("END PACKET");
+      //println(inputs);
+      //println("END PACKET");
     }
   }
   for (int i = 0; i < 7; i++) {
@@ -252,7 +252,7 @@ void readTeensy() {
       myPort.write("c");
       comboSent = true;
       comboSigTime = millis() + comboSigTimeout;
-      println("sending c to teensy");
+      //println("sending c to teensy");
       i++;
     }
   }
@@ -301,13 +301,13 @@ void teensyKeyPressed(int code) {
 //Replicating functionality of builtin keyPressed() function for serial data from teensy
 void teensyKeyReleased(int code) {
   if (code == 4) {
-    println("punch");
+    //println("punch");
     inputs[4] = 0;
     fighter.punchAllow = true;
     fighter.punching = false;
   } else if (code == 5) {
     inputs[5] = 0;
-    println("kick");
+    //println("kick");
     fighter.kickAllow = true;
     fighter.kicking = false;
   }
@@ -328,15 +328,12 @@ void teensyKeyReleased(int code) {
 }
 
 void initSerial () {
-  println("init serial");
   try {
-    println("trying serial");
     String portName = Serial.list()[0]; //change the 0 to a 1 or 2 etc. to match your port
     myPort = new Serial(this, portName, 9600);
     serialInited = true;
   } 
   catch (RuntimeException e) {
-    println("port in use, trying again later...");
     serialInited = false;
   }
 }
@@ -367,12 +364,10 @@ void setup() {
 }
 
 void draw() {
-  println("in the draw loop");
   //background(255);
   //TO USE TEENSY INPUTS, UNCOMMENT THE FOLLOWING LINE AND COMMENT OUT keyPressed() AND keyReleased() functions
 
   if (serialInited) {
-    println("in the teensy loop");
     // serial is up and running
     try { 
       if (myPort.available() > 0) {
@@ -508,17 +503,11 @@ void draw() {
     catch (RuntimeException e) {
       // serial port closed :(
       serialInited = false;
-      println("stopping serial!");
-      //myPort.stop(); //if port isnt availbile, stop it 
-      //delay(2000);
-      //String portName = Serial.list()[0]; //restart the serial connection
-      //myPort = new Serial(this, portName, 9600);
     }
   } else {
     // serial port is not available. bang on it until it is.
     for (int i=0; i<20; i++) {
       //this is a looop so we dont knock the door down on the serial port
-      println("in the waiting loop" + i);
     }
     initSerial();
   }
