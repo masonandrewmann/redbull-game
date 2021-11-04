@@ -1,7 +1,7 @@
 import processing.video.*;
 import processing.serial.*;
 import processing.sound.*;
-
+///check to make sure the serial port is the right one
 
 //fetching input data from microcontroller
 Serial myPort;  // Create object from Serial class
@@ -219,9 +219,10 @@ void movieEvent(Movie m) {
 //}
 
 void readTeensy() {
-  //read inputs from arduino
-  if ( myPort.available() > 0)
-  {  // If data is available,
+  println("readTeensy");
+  //read inputs from arduino //<>//
+  if ( myPort.available() > 0) //<>//
+  {  // If data is available, //<>//
 
     val = myPort.readStringUntil('\n');       // read it and store it in val
     //println(val);
@@ -327,17 +328,21 @@ void teensyKeyReleased(int code) {
   }
 }
 
-void initSerial () {
+void initSerial () { //<>//
   println("init serial");
   try {
     println("trying serial");
-    String portName = Serial.list()[0]; //change the 0 to a 1 or 2 etc. to match your port
+    //printArray(Serial.list());
+
+    String portName = Serial.list()[4]; //change the 0 to a 1 or 2 etc. to match your port
     myPort = new Serial(this, portName, 9600);
     serialInited = true;
   } 
   catch (RuntimeException e) {
+    if (e.getMessage().contains("<init>")) {
       println("port in use, trying again later...");
       serialInited = false;
+    }
   }
 }
 
@@ -370,18 +375,19 @@ void draw() {
   println("in the draw loop");
   //background(255);
   //TO USE TEENSY INPUTS, UNCOMMENT THE FOLLOWING LINE AND COMMENT OUT keyPressed() AND keyReleased() functions
-  if (myPort.available() > 0) {
-    serialInited = true;
-  } else {
-    serialInited = false;
-    gameState = 9;
-    callToActionScreen.loop();
-    image(callToActionScreen, 0, 0);
-  }
+
   if (serialInited) {
     println("in the teensy loop");
     // serial is up and running
     try { 
+      //if (myPort.available() > 0) {
+      //  serialInited = true;
+      //} else {
+      //  serialInited = false;
+      //  gameState = 9;
+      //  callToActionScreen.loop();
+      //  image(callToActionScreen, 0, 0);
+      //}
       //all serial stuff happens here
       readTeensy();
       switch (gameState) {
@@ -508,16 +514,16 @@ void draw() {
       // serial port closed :(
       serialInited = false;
       println("stopping serial!");
-      //myPort.stop(); //if port isnt availbile, stop it 
+      myPort.stop(); //if port isnt availbile, stop it 
       //delay(2000);
       //String portName = Serial.list()[0]; //restart the serial connection
       //myPort = new Serial(this, portName, 9600);
     }
   } else {
     // serial port is not available. bang on it until it is.
-    for (int i=0; i<20; i++) {
+    for (int i=0; i<200; i++) {
       //this is a looop so we dont knock the door down on the serial port
-      println("in the waiting loop" + i);
+      //println("in the waiting loop" + i);
     }
     initSerial();
   }

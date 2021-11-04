@@ -106,7 +106,7 @@ class Fighter {
     // We must convert the float index to an int first!
     int imageIndex = int(index);
     if (comboReady == 0){
-      image(currAnim[imageIndex], pos.x + 400, pos.y + 200);
+      image(currAnim[imageIndex], pos.x + 300, pos.y + 200);
     } else {
       image(currAnim[imageIndex], 0, 0);
     }

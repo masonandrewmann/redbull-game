@@ -13,18 +13,18 @@
 //BOTTOM3 - 4
 //reset- 20
 
-#define LEFTPIN 17
-#define RIGHTPIN 6
-#define UPPIN 23
-#define DOWNPIN 18
-#define TOP1 16
-#define TOP2 8
-#define TOP3 22
-#define BOTTOM1 19
-#define BOTTOM2 2
-#define BOTTOM3 4
-#define RESETPIN 20
-#define RELAYPIN 21
+#define LEFTPIN 10
+#define RIGHTPIN 9
+#define UPPIN 12
+#define DOWNPIN 11
+#define TOP1 8
+#define TOP2 7
+#define TOP3 6
+#define BOTTOM1 5
+#define BOTTOM2 4
+#define BOTTOM3 3
+#define RESETPIN 2
+#define RELAYPIN 15
 #define LEDPIN 13
 int left;
 int right;

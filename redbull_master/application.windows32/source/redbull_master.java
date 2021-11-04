@@ -496,7 +496,10 @@ public void draw() {
     break;
   }
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> 24d3cc79c88b4e480d83382e1c087e798b2ebb79
 // The animation object
 
 class Fighter {
@@ -605,7 +608,11 @@ class Fighter {
     // We must convert the float index to an int first!
     int imageIndex = PApplet.parseInt(index);
     if (comboReady == 0){
+<<<<<<< HEAD
       image(currAnim[imageIndex], pos.x + 400, pos.y + 200);
+=======
+      image(currAnim[imageIndex], pos.x + 300, pos.y + 200);
+>>>>>>> 24d3cc79c88b4e480d83382e1c087e798b2ebb79
     } else {
       image(currAnim[imageIndex], 0, 0);
     }
