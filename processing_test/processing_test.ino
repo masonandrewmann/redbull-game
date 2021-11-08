@@ -54,7 +54,7 @@ int inputs[] = {1, 1, 1, 1, 1, 1, 1};
 
 void setup() {
   //initialize serial communications at a 9600 baud rate
-  Serial.begin(9600);
+  Serial.begin(115200);
   //initialize input pins
   for (int i = 0; i < 11; i++) {
     pinMode(inputPins[i], INPUT_PULLUP);
