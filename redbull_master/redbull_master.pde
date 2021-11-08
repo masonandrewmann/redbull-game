@@ -1,4 +1,4 @@
-import processing.video.*;
+import processing.video.*; //<>// //<>// //<>// //<>//
 import processing.serial.*;
 import processing.sound.*;
 ///check to make sure the serial port is the right one
@@ -13,6 +13,8 @@ int prevInputs[] = {0, 0, 0, 0, 0, 0, 0}; // left, right, up, down, punch, kick,
 int comboSigTime = 0;
 int comboSigTimeout = 6000;
 boolean comboSent = false;
+String serialString;
+boolean serialReceived = false;
 
 //font for timer
 PFont fightingFont;
@@ -70,7 +72,10 @@ int timeLimit = 40; //seconds allowed
 
 
 
-
+void serialEvent(Serial p){
+    serialString = p.readString();
+    serialReceived = true;
+}
 
 void loadAssets() {
   //load the MP4s
@@ -219,24 +224,37 @@ void movieEvent(Movie m) {
 //}
 
 void readTeensy() {
-  println("readTeensy");
-  //read inputs from arduino //<>//
-  if ( myPort.available() > 0) //<>//
-  {  // If data is available, //<>//
+  //println("readTeensy");
+  //read inputs from arduino
+  //if ( myPort.available() > 0)
+  //{  // If data is available,
 
-    val = myPort.readStringUntil('\n');       // read it and store it in val
-    //println(val);
-    if (val != null) {
+  //  val = myPort.readStringUntil('\n');       // read it and store it in val
+  //  //println(val);
+  //  if (val != null) {
 
-      list = split(val, "a");
-      for (int i = 0; i < list.length-1; i++) {
+  //    list = split(val, "a");
+  //    for (int i = 0; i < list.length-1; i++) {
+  //      prevInputs[i] = inputs[i];
+  //      inputs[i] = Integer.parseInt(list[i]);
+  //    }
+  //    println(inputs);
+  //    println("END PACKET");
+  //  }
+  //}
+    if (serialReceived){
+    if(serialString.length() == 15){
+      list = split(serialString, "a");
+      for (int i = 0; i < 7; i++){
         prevInputs[i] = inputs[i];
         inputs[i] = Integer.parseInt(list[i]);
       }
-      println(inputs);
-      println("END PACKET");
     }
+    serialReceived = false;
   }
+  //println(inputs);
+  //println(serialString);
+  
   for (int i = 0; i < 7; i++) {
     if (inputs[i] == 1 && prevInputs[i] == 0) {
       teensyKeyPressed(i);
@@ -328,14 +346,15 @@ void teensyKeyReleased(int code) {
   }
 }
 
-void initSerial () { //<>//
+void initSerial () {
   println("init serial");
   try {
     println("trying serial");
     //printArray(Serial.list());
 
-    String portName = Serial.list()[4]; //change the 0 to a 1 or 2 etc. to match your port
-    myPort = new Serial(this, portName, 9600);
+    String portName = Serial.list()[1]; //change the 0 to a 1 or 2 etc. to match your port
+    myPort = new Serial(this, portName, 115200);
+    myPort.bufferUntil('\n');
     serialInited = true;
   } 
   catch (RuntimeException e) {
@@ -372,14 +391,12 @@ void setup() {
 }
 
 void draw() {
-  println("in the draw loop");
+  //println("in the draw loop");
   //background(255);
-  //TO USE TEENSY INPUTS, UNCOMMENT THE FOLLOWING LINE AND COMMENT OUT keyPressed() AND keyReleased() functions
-
   if (serialInited) {
-    println("in the teensy loop");
+    //println("in the teensy loop");
     // serial is up and running
-    try { 
+    //try { 
       //if (myPort.available() > 0) {
       //  serialInited = true;
       //} else {
@@ -509,22 +526,22 @@ void draw() {
         gameState = 0;
         break;
       }
-    }  
-    catch (RuntimeException e) {
-      // serial port closed :(
-      serialInited = false;
-      println("stopping serial!");
-      myPort.stop(); //if port isnt availbile, stop it 
-      //delay(2000);
-      //String portName = Serial.list()[0]; //restart the serial connection
-      //myPort = new Serial(this, portName, 9600);
-    }
+    //}  
+    //catch (RuntimeException e) {
+    //  // serial port closed :(
+    //  serialInited = false;
+    //  println("stopping serial!");
+    //  myPort.stop(); //if port isnt availbile, stop it 
+    //  //delay(2000);
+    //  //String portName = Serial.list()[0]; //restart the serial connection
+    //  //myPort = new Serial(this, portName, 9600);
+    //}
   } else {
     // serial port is not available. bang on it until it is.
-    for (int i=0; i<200; i++) {
-      //this is a looop so we dont knock the door down on the serial port
-      //println("in the waiting loop" + i);
-    }
-    initSerial();
+    //for (int i=0; i<200; i++) {
+    //  //this is a looop so we dont knock the door down on the serial port
+    //  //println("in the waiting loop" + i);
+    //}
+    //initSerial();
   }
 }
