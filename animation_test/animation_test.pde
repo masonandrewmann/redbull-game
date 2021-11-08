@@ -4,10 +4,8 @@ import processing.serial.*;
 Serial myPort;  // Create object from Serial class
 String val;     // Data received from the serial port
 String[] list;
-String serialString;
-boolean serialReceived = false;
 
-int inputs[] = {0, 0, 0, 0, 0, 0, 0}; //button inputs from arduino
+int inputs[] = {0, 0, 0, 0, 0, 0}; //button inputs from arduino
 
 Fighter fighter;    //our fighter
 PImage bg;          //background image
@@ -107,49 +105,28 @@ void setup() {
 
   //initialize serial comm
   String portName = Serial.list()[1]; //change the 0 to a 1 or 2 etc. to match your port
-  myPort = new Serial(this, portName, 115200);
-  myPort.bufferUntil('\n');
+  myPort = new Serial(this, portName, 9600);
 }
 
-void serialEvent(Serial p){
-    serialString = p.readString();
-    serialReceived = true;
-}
 void draw() {
 
   background(bg);
 
-  
-  if (serialReceived){
-    if(serialString.length() == 15){
-      list = split(serialString, "a");
-      for (int i = 0; i < 7; i++){
-        inputs[i] = Integer.parseInt(list[i]);
-      }
-    }
-    serialReceived = false;
-  }
-  
-    println(inputs);
-  println(serialString);
-  //println(serialString.length());
   //read inputs from arduino
-  //if (millis() > 2000){
-  //  if ( myPort.available() > 0)
-  //    {  // If data is available,
+    if ( myPort.available() > 0)
+      {  // If data is available,
 
-  //        val = myPort.readStringUntil('\n');       // read it and store it in val
-  //        println(val);
-  //        //if (val != null){
-  //        //  list = split(val, "a");
-  //        //  for (int i = 0; i < list.length-1; i++){
-  //        //    inputs[i] = Integer.parseInt(list[i]);
-  //        //  }
-  //        //  println(inputs);
-  //        //  println("END PACKET");
-  //        //}
-  //  }
-  //}
+          val = myPort.readStringUntil('\n');       // read it and store it in val
+          //println(val);
+          if (val != null){
+            list = split(val, "a");
+            for (int i = 0; i < list.length-1; i++){
+              inputs[i] = Integer.parseInt(list[i]);
+            }
+            //println(inputs);
+            //println("END PACKET");
+          }
+    }
 
   // Display, cycle, and move all the animation objects
     fighter.decideAction(inputs);

@@ -1,4 +1,4 @@
-import processing.video.*;
+import processing.video.*; //<>// //<>// //<>// //<>//
 import processing.serial.*;
 import processing.sound.*;
 ///check to make sure the serial port is the right one
@@ -224,10 +224,10 @@ void movieEvent(Movie m) {
 //}
 
 void readTeensy() {
-  println("readTeensy");
-  //read inputs from arduino //<>//
-  //if ( myPort.available() > 0) //<>//
-  //{  // If data is available, //<>//
+  //println("readTeensy");
+  //read inputs from arduino
+  //if ( myPort.available() > 0)
+  //{  // If data is available,
 
   //  val = myPort.readStringUntil('\n');       // read it and store it in val
   //  //println(val);
@@ -246,6 +246,7 @@ void readTeensy() {
     if(serialString.length() == 15){
       list = split(serialString, "a");
       for (int i = 0; i < 7; i++){
+        prevInputs[i] = inputs[i];
         inputs[i] = Integer.parseInt(list[i]);
       }
     }
@@ -345,7 +346,7 @@ void teensyKeyReleased(int code) {
   }
 }
 
-void initSerial () { //<>//
+void initSerial () {
   println("init serial");
   try {
     println("trying serial");
@@ -390,10 +391,10 @@ void setup() {
 }
 
 void draw() {
-  println("in the draw loop");
+  //println("in the draw loop");
   //background(255);
   if (serialInited) {
-    println("in the teensy loop");
+    //println("in the teensy loop");
     // serial is up and running
     //try { 
       //if (myPort.available() > 0) {
