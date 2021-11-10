@@ -255,8 +255,8 @@ void readTeensy() {
     }
     serialReceived = false;
   }
-  //println(inputs);
-  //println(serialString);
+  println(inputs);
+  println(serialString);
   
   for (int i = 0; i < 7; i++) {
     if (inputs[i] == 1 && prevInputs[i] == 0) {
@@ -357,7 +357,8 @@ void initSerial () {
 
     String portName = Serial.list()[1]; //change the 0 to a 1 or 2 etc. to match your port
     myPort = new Serial(this, portName, 115200);
-    myPort.bufferUntil('\n');
+    //myPort.bufferUntil('\n');
+    myPort.bufferUntil(107); // ASCII for 'k'
     serialInited = true;
   } 
   catch (RuntimeException e) {

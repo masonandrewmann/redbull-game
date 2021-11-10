@@ -118,7 +118,8 @@ void loop() {
       }
   
     // end byte
-    Serial.print("\n");
+//    Serial.print("\n");
+    Serial.print('k');
     timethrottle = millis() + time_del;
   }
 
