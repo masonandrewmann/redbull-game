@@ -242,13 +242,16 @@ void readTeensy() {
   //    println("END PACKET");
   //  }
   //}
+  
+  
     if (serialReceived){
-    if(serialString.length() == 15){
-      list = split(serialString, "a");
-      for (int i = 0; i < 7; i++){
-        prevInputs[i] = inputs[i];
-        inputs[i] = Integer.parseInt(list[i]);
-      }
+      serialString = serialString.trim();
+      if(serialString.length() == 15){
+        list = split(serialString, "a");
+        for (int i = 0; i < 7; i++){
+          prevInputs[i] = inputs[i];
+          inputs[i] = Integer.parseInt(list[i]);
+        }
     }
     serialReceived = false;
   }
