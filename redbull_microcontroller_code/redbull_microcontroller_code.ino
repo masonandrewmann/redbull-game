@@ -1,19 +1,6 @@
 // this is the redbull arcade machine microcontroller code
 // made in spring 2021
 
-
-//LEFT - 17
-//RIGHT - 6
-//UP - 23
-//DOWN - 18
-//TOP1 - 16
-//TOP2 - 8
-//TOP3 - 22
-//BOTTOM 1 - 19
-//BOTTOM2 - 2
-//BOTTOM3 - 4
-//reset- 20
-
 #define LEFTPIN 10
 #define RIGHTPIN 9
 #define UPPIN 12

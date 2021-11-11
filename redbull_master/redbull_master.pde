@@ -73,12 +73,17 @@ int timeLimit = 40; //seconds allowed
 
 
 void serialEvent(Serial p) {
-  print("¬");
-  serialString = p.readString();
-  serialReceived = true;
-  print(serialString);
-  myPort.clear();
-  println("~");
+  try {
+    //print("¬");
+    serialString = p.readString();
+    serialReceived = true;
+    //print(serialString);
+    //myPort.clear();
+    //println("~");
+  }
+  catch (ArrayIndexOutOfBoundsException ex) {
+    ex.printStackTrace();
+  }
 }
 
 void loadAssets() {
@@ -400,183 +405,195 @@ void setup() {
 }
 
 void draw() {
-  println("in the draw loop");
-  //background(255);
-  if (serialInited) {
-    println("serial is inited");
-    // serial is up and running
-    //try { 
-    //if (myPort.available() > 0) {
-    //  serialInited = true;
-    //} else {
-    //  serialInited = false;
-    //  gameState = 9;
-    //  callToActionScreen.loop();
-    //  image(callToActionScreen, 0, 0);
-    //}
-    //all serial stuff happens here
-    readTeensy();
-    println("after read teensy in draw code");
-    switch (gameState) {
-    case 0:
-      println("case0");
+  try {
+    println("in the draw loop");
+    //background(255);
+    if (serialInited) {
+      println("serial is inited");
+      // serial is up and running
+      //try { 
+      //if (myPort.available() > 0) {
+      //  serialInited = true;
+      //} else {
+      //  serialInited = false;
+      //  gameState = 9;
+      //  callToActionScreen.loop();
+      //  image(callToActionScreen, 0, 0);
+      //}
+      //all serial stuff happens here
+      readTeensy();
+      println("after read teensy in draw code");
+      switch (gameState) {
+      case 0:
+        println("case0");
 
-      //call to action sound
-      introSound.play();
-      callToActionScreen.loop();
-      image(callToActionScreen, 0, 0);
-      gameState = 1;
-      break;
+        //call to action sound
+        introSound.play();
+        callToActionScreen.loop();
+        image(callToActionScreen, 0, 0);
+        gameState = 1;
+        break;
 
-    case 1:
-      println("case1");
-      //call to action
-      image(callToActionScreen, 0, 0);
-      println("case1: after image()"); 
-      break;
+      case 1:
+        println("case1");
+        //call to action
+        image(callToActionScreen, 0, 0);
+        println("case1: after image()"); 
+        break;
 
-    case 2:     
-      println("case2");
-      //play begin sound
-      callToActionScreen.stop();
-      masterTimer = millis();
-      beginSound.play();
-      gameState = 11;
-      break;
+      case 2:     
+        println("case2");
+        //play begin sound
+        callToActionScreen.stop();
+        masterTimer = millis();
+        beginSound.play();
+        gameState = 11;
+        break;
 
-    case 11:
-          println("case11");
+      case 11:
+        println("case11");
 
-      //prepare for gameplay
-      //background.loop();
-      gameState = 3;
-      break;
+        //prepare for gameplay
+        //background.loop();
+        gameState = 3;
+        break;
 
-    case 3:
+      case 3:
+        try {
           println("case3");
 
-      //gameplay
-      image(staticBackground, 0, 0);
-      // Display, cycle, and move all the animation objects
-      fighter.decideAction(inputs);
-      fighter.move();
-      fighter.next();
-      fighter.display();
-      fighter.comboCheck();
-      image(playerOverlay, 0, 0);
-      image(comboBar[fighter.comboMeterNum], 0, 0);
-      //timer
-      int currTime = timeLimit - (millis() - masterTimer)/1000;
-      fill(255);
-      textSize(100);
-      text(currTime, 625, 115);
-      fill(0);
-      text(currTime, 627, 117);
-      if (currTime <= 0) {
-        gameState = 7;
+          //gameplay
+          image(staticBackground, 0, 0);
+          // Display, cycle, and move all the animation objects
+          println(inputs);
+          fighter.decideAction(inputs);
+          fighter.move();
+          fighter.next();
+          fighter.display();
+          fighter.comboCheck();
+          image(playerOverlay, 0, 0);
+          image(comboBar[fighter.comboMeterNum], 0, 0);
+          //timer
+          int currTime = timeLimit - (millis() - masterTimer)/1000;
+          fill(255);
+          textSize(100);
+          text(currTime, 625, 115);
+          fill(0);
+          text(currTime, 627, 117);
+          if (currTime <= 0) {
+            gameState = 7;
+          }
+          break;
+        }
+        catch (ArrayIndexOutOfBoundsException ex) {
+          ex.printStackTrace();
+        }
+
+
+      case 4:
+        println("case4");
+
+        //winning combo
+        image(staticBackground, 0, 0);
+        noStroke();
+        fill(0, bgDimmer);
+        bgDimmer += 5;
+        rect(0, 0, width, height);
+        fighter.move();
+        fighter.next();
+        fighter.display();
+        fighter.comboDone();
+        image(playerOverlay, 0, 0);
+        break;
+
+      case 5:
+        println("case5");
+
+        //victory sound
+        int tmp = (int)random(0, 4);
+        winSound[tmp].play();
+        winScreen.play();
+        image(winScreen, 0, 0);
+        gameState = 6;
+        break;
+
+      case 6:
+        println("case6");
+
+        //victory screen
+        image(winScreen, 0, 0);
+        if (winScreen.time()+.05 >= winScreen.duration()) {
+          gameState = 9;
+          winScreen.jump(0);
+          winScreen.stop();
+        }
+        break;
+
+      case 7:
+        println("case7");
+
+        //failure sound
+        resetSound.play();
+        resetScreen.play();
+        image(resetScreen, 0, 0);
+        gameState = 8;
+        break;
+
+      case 8:
+        println("case8");
+
+        //failure screen
+        image(resetScreen, 0, 0);
+        if (resetScreen.time()+.05 >= resetScreen.duration()) {
+          resetScreen.jump(0);
+          resetScreen.stop();
+          gameState = 10;
+        }
+        break;
+
+      case 10:
+        println("case10");
+
+        noStroke();
+        fill(0, bgDimmer);
+        bgDimmer += 3;
+        rect(0, 0, width, height);
+        if (bgDimmer >= 255) {
+          gameState = 9;
+        }
+        break;
+
+      case 9:
+        println("case9");
+
+        //resetting
+        playWinSound = false;
+        bgDimmer = 0;
+        gameState = 0;
+        break;
       }
-      break;
-
-    case 4:
-          println("case4");
-
-      //winning combo
-      image(staticBackground, 0, 0);
-      noStroke();
-      fill(0, bgDimmer);
-      bgDimmer += 5;
-      rect(0, 0, width, height);
-      fighter.move();
-      fighter.next();
-      fighter.display();
-      fighter.comboDone();
-      image(playerOverlay, 0, 0);
-      break;
-
-    case 5:
-          println("case5");
-
-      //victory sound
-      int tmp = (int)random(0, 4);
-      winSound[tmp].play();
-      winScreen.play();
-      image(winScreen, 0, 0);
-      gameState = 6;
-      break;
-
-    case 6:
-          println("case6");
-
-      //victory screen
-      image(winScreen, 0, 0);
-      if (winScreen.time()+.05 >= winScreen.duration()) {
-        gameState = 9;
-        winScreen.jump(0);
-        winScreen.stop();
-      }
-      break;
-
-    case 7:
-          println("case7");
-
-      //failure sound
-      resetSound.play();
-      resetScreen.play();
-      image(resetScreen, 0, 0);
-      gameState = 8;
-      break;
-
-    case 8:
-          println("case8");
-
-      //failure screen
-      image(resetScreen, 0, 0);
-      if (resetScreen.time()+.05 >= resetScreen.duration()) {
-        resetScreen.jump(0);
-        resetScreen.stop();
-        gameState = 10;
-      }
-      break;
-
-    case 10:
-          println("case10");
-
-      noStroke();
-      fill(0, bgDimmer);
-      bgDimmer += 3;
-      rect(0, 0, width, height);
-      if (bgDimmer >= 255) {
-        gameState = 9;
-      }
-      break;
-
-    case 9:
-          println("case9");
-
-      //resetting
-      playWinSound = false;
-      bgDimmer = 0;
-      gameState = 0;
-      break;
+      //}  
+      //catch (RuntimeException e) {
+      //  // serial port closed :(
+      //  serialInited = false;
+      //  println("stopping serial!");
+      //  myPort.stop(); //if port isnt availbile, stop it 
+      //  //delay(2000);
+      //  //String portName = Serial.list()[0]; //restart the serial connection
+      //  //myPort = new Serial(this, portName, 9600);
+      //}
+    } else {
+      // serial port is not available. bang on it until it is.
+      //for (int i=0; i<200; i++) {
+      //  //this is a looop so we dont knock the door down on the serial port
+      //  //println("in the waiting loop" + i);
+      //}
+      //initSerial();
+      println("serial not inited");
     }
-    //}  
-    //catch (RuntimeException e) {
-    //  // serial port closed :(
-    //  serialInited = false;
-    //  println("stopping serial!");
-    //  myPort.stop(); //if port isnt availbile, stop it 
-    //  //delay(2000);
-    //  //String portName = Serial.list()[0]; //restart the serial connection
-    //  //myPort = new Serial(this, portName, 9600);
-    //}
-  } else {
-    // serial port is not available. bang on it until it is.
-    //for (int i=0; i<200; i++) {
-    //  //this is a looop so we dont knock the door down on the serial port
-    //  //println("in the waiting loop" + i);
-    //}
-    //initSerial();
-    println("serial not inited");
+    println("end of draw loop");
   }
-  println("end of draw loop");
+  catch (ArrayIndexOutOfBoundsException ex) {
+    ex.printStackTrace();
+  }
 }
