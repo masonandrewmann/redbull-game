@@ -2,7 +2,7 @@ import processing.video.*; //<>// //<>// //<>// //<>//
 import processing.serial.*;
 import processing.sound.*;
 ///check to make sure the serial port is the right one
-int myPortIndex = 4; //Set for your desired port.
+int myPortIndex = 0; //Set for your desired port.
 String portName;
 
 //fetching input data from microcontroller
@@ -549,6 +549,7 @@ void draw() {
     background(0, 200, 140);
     text("serial not initialized... restart system", width/2, height/2);      
     text("ensure USB cables are plugged in ", width/2, 3*height/4);
+    textAlign(LEFT);
   }
   println("end of draw loop");
 }

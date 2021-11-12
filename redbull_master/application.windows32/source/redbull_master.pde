@@ -1,10 +1,13 @@
-import processing.video.*;
+import processing.video.*; //<>// //<>// //<>//
 import processing.serial.*;
 import processing.sound.*;
-
+///check to make sure the serial port is the right one
+int myPortIndex = 0; //Set for your desired port.
+String portName;
 
 //fetching input data from microcontroller
 Serial myPort;  // Create object from Serial class
+boolean serialInited;
 String val;     // Data received from the serial port
 String[] list;
 int inputs[] = {0, 0, 0, 0, 0, 0, 0}; //button inputs from arduino
@@ -12,6 +15,8 @@ int prevInputs[] = {0, 0, 0, 0, 0, 0, 0}; // left, right, up, down, punch, kick,
 int comboSigTime = 0;
 int comboSigTimeout = 6000;
 boolean comboSent = false;
+String serialString;
+boolean serialReceived = false;
 
 //font for timer
 PFont fightingFont;
@@ -69,7 +74,17 @@ int timeLimit = 40; //seconds allowed
 
 
 
-
+void serialEvent(Serial p) {
+  try {
+    println("trying");
+    serialString = p.readString();
+    serialReceived = true;
+  }
+  catch (RuntimeException ex) {
+    println("exception in serialevent");
+    ex.printStackTrace();
+  }
+}
 
 void loadAssets() {
   //load the MP4s
@@ -218,23 +233,40 @@ void movieEvent(Movie m) {
 //}
 
 void readTeensy() {
+  //println("readTeensy");
   //read inputs from arduino
-  if ( myPort.available() > 0)
-  {  // If data is available,
+  //if ( myPort.available() > 0)
+  //{  // If data is available,
 
-    val = myPort.readStringUntil('\n');       // read it and store it in val
-    //println(val);
-    if (val != null) {
+  //  val = myPort.readStringUntil('\n');       // read it and store it in val
+  //  //println(val);
+  //  if (val != null) {
 
-      list = split(val, "a");
-      for (int i = 0; i < list.length-1; i++) {
+  //    list = split(val, "a");
+  //    for (int i = 0; i < list.length-1; i++) {
+  //      prevInputs[i] = inputs[i];
+  //      inputs[i] = Integer.parseInt(list[i]);
+  //    }
+  //    println(inputs);
+  //    println("END PACKET");
+  //  }
+  //}
+
+
+  if (serialReceived) {
+    serialString = serialString.trim();
+    if (serialString.length() == 15) {
+      list = split(serialString, "a");
+      for (int i = 0; i < 7; i++) {
         prevInputs[i] = inputs[i];
         inputs[i] = Integer.parseInt(list[i]);
       }
-      println(inputs);
-      println("END PACKET");
     }
+    serialReceived = false;
   }
+  println(inputs);
+  println(serialString);
+
   for (int i = 0; i < 7; i++) {
     if (inputs[i] == 1 && prevInputs[i] == 0) {
       teensyKeyPressed(i);
@@ -242,7 +274,6 @@ void readTeensy() {
       teensyKeyReleased(i);
     }
   }
-
   //if winning combo has been done, send signal to arduino to release the drink
   if (gameState == 6 && !comboSent) {
     int i =0;
@@ -255,10 +286,12 @@ void readTeensy() {
       i++;
     }
   }
+
   if (millis() > comboSigTime) comboSent = false;
   myPort.clear();
   //print("has the combo been sent?");
   //println(comboSent);
+  println("end of readTeensy");
 }
 
 //Replicating functionality of builtin keyPressed() function for serial data from teensy
@@ -326,6 +359,27 @@ void teensyKeyReleased(int code) {
   }
 }
 
+void initSerial () {
+  println("init serial");
+  try {
+    println("trying serial");
+    //printArray(Serial.list());
+
+    portName = Serial.list()[myPortIndex]; //change the 0 to a 1 or 2 etc. to match your port
+
+    myPort = new Serial(this, portName, 9600);
+    //myPort.bufferUntil('\n');
+    myPort.bufferUntil(107); // ASCII for 'k'
+    serialInited = true;
+  } 
+  catch (RuntimeException e) {
+    if (e.getMessage().contains("<init>")) {
+      println("port in use, trying again later...");
+      serialInited = false;
+    }
+  }
+}
+
 void setup() {
   size(1280, 720);
   frameRate(20);
@@ -344,135 +398,171 @@ void setup() {
   loadAssets();
 
   //initialize serial comm
-  String portName = Serial.list()[0]; //change the 0 to a 1 or 2 etc. to match your port
-  myPort = new Serial(this, portName, 9600);
-
-
+  initSerial();
   bgMusic.loop();
   masterTimer = millis();
+  delay(2000);
 }
 
 void draw() {
-  //background(255);
-  //TO USE TEENSY INPUTS, UNCOMMENT THE FOLLOWING LINE AND COMMENT OUT keyPressed() AND keyReleased() functions
-  readTeensy();
-  switch (gameState) {
-  case 0:
-    //call to action sound
-    introSound.play();
-    callToActionScreen.loop();
-    image(callToActionScreen, 0, 0);
-    gameState = 1;
-    break;
+  if (serialInited) {
+    println(myPort.active());
 
-  case 1:
-    //call to action
-    image(callToActionScreen, 0, 0);
-    break;
+    if (!isPortActive(portName)) {
+      println("disconnected!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+    }
+    readTeensy();
+    switch (gameState) {
+    case 0:
+      //call to action sound
+      introSound.play();
+      image(callToActionScreen, 0, 0);
+      callToActionScreen.loop();
 
-  case 2:
-    //play begin sound
-    callToActionScreen.stop();
-    masterTimer = millis();
-    beginSound.play();
-    gameState = 11;
-    break;
+      gameState = 1;
+      break;
 
-  case 11:
-    //prepare for gameplay
-    //background.loop();
-    gameState = 3;
-    break;
+    case 1:
+      //call to action
+      image(callToActionScreen, 0, 0);
+      println("case1: after image()"); 
+      if (is_movie_finished(callToActionScreen)) {
+        callToActionScreen.jump(0);
+      }
+      break;
 
-  case 3:
-    //gameplay
-    image(staticBackground, 0, 0);
-    // Display, cycle, and move all the animation objects
-    fighter.decideAction(inputs);
-    fighter.move();
-    fighter.next();
-    fighter.display();
-    fighter.comboCheck();
-    image(playerOverlay, 0, 0);
-    image(comboBar[fighter.comboMeterNum], 0, 0);
-    //timer
-    int currTime = timeLimit - (millis() - masterTimer)/1000;
-    fill(255);
-    textSize(100);
-    text(currTime, 625, 115);
+    case 2:     
+      //play begin sound
+      callToActionScreen.stop();
+      masterTimer = millis();
+      beginSound.play();
+      gameState = 11;
+      break;
+
+    case 11:
+      //prepare for gameplay
+      //background.loop();
+      gameState = 3;
+      break;
+
+    case 3:
+      //gameplay
+      image(staticBackground, 0, 0);
+      // Display, cycle, and move all the animation objects
+      println(inputs);
+      fighter.decideAction(inputs);
+      fighter.move();
+      fighter.next();
+      fighter.display();
+      fighter.comboCheck();
+      image(playerOverlay, 0, 0);
+      image(comboBar[fighter.comboMeterNum], 0, 0);
+      //timer
+      int currTime = timeLimit - (millis() - masterTimer)/1000;
+      fill(255);
+      textSize(100);
+      text(currTime, 625, 115);
+      fill(0);
+      text(currTime, 627, 117);
+      if (currTime <= 0) {
+        gameState = 7;
+      }
+      break;
+    case 4:
+      //winning combo
+      image(staticBackground, 0, 0);
+      noStroke();
+      fill(0, bgDimmer);
+      bgDimmer += 5;
+      rect(0, 0, width, height);
+      fighter.move();
+      fighter.next();
+      fighter.display();
+      fighter.comboDone();
+      image(playerOverlay, 0, 0);
+      break;
+
+    case 5:
+      //victory sound
+      int tmp = (int)random(0, 4);
+      winSound[tmp].play();
+      winScreen.play();
+      image(winScreen, 0, 0);
+      gameState = 6;
+      break;
+
+    case 6:
+      //victory screen
+      image(winScreen, 0, 0);
+      if (winScreen.time()+.05 >= winScreen.duration()) {
+        gameState = 9;
+        winScreen.jump(0);
+        winScreen.stop();
+      }
+      break;
+
+    case 7:
+      //failure sound
+      resetSound.play();
+      resetScreen.play();
+      image(resetScreen, 0, 0);
+      gameState = 8;
+      break;
+
+    case 8:
+      //failure screen
+      image(resetScreen, 0, 0);
+      if (resetScreen.time()+.05 >= resetScreen.duration()) {
+        resetScreen.jump(0);
+        resetScreen.stop();
+        gameState = 10;
+      }
+      break;
+
+    case 10:
+      noStroke();
+      fill(0, bgDimmer);
+      bgDimmer += 3;
+      rect(0, 0, width, height);
+      if (bgDimmer >= 255) {
+        gameState = 9;
+      }
+      break;
+
+    case 9:
+      //resetting
+      playWinSound = false;
+      bgDimmer = 0;
+      gameState = 0;
+      break;
+    }
+  } else {
+    //serial port is not available. bang on it until it is.
+    for (int i=0; i<200; i++) {
+      //this is a looop so we dont knock the door down on the serial port
+      //println("in the waiting loop" + i);
+    }
+    initSerial();
+    textSize(50);
     fill(0);
-    text(currTime, 627, 117);
-    if (currTime <= 0) {
-      gameState = 7;
-    }
-    break;
+    textAlign(CENTER);
+    background(0, 200, 140);
+    text("serial not initialized... restart system", width/2, height/2);      
+    text("ensure USB cables are plugged in ", width/2, 3*height/4);
+    textAlign(LEFT);
+  }
+  println("end of draw loop");
+}
 
-  case 4:
-    //winning combo
-    image(staticBackground, 0, 0);
-    noStroke();
-    fill(0, bgDimmer);
-    bgDimmer += 5;
-    rect(0, 0, width, height);
-    fighter.move();
-    fighter.next();
-    fighter.display();
-    fighter.comboDone();
-    image(playerOverlay, 0, 0);
-    break;
+boolean is_movie_finished(Movie m) {
+  return m.duration() - m.time() < 0.05;
+}  
 
-  case 5:
-    //victory sound
-    int tmp = (int)random(0, 4);
-    winSound[tmp].play();
-    winScreen.play();
-    image(winScreen, 0, 0);
-    gameState = 6;
-    break;
-
-  case 6:
-    //victory screen
-    image(winScreen, 0, 0);
-    if (winScreen.time()+.05 >= winScreen.duration()) {
-      gameState = 9;
-      winScreen.jump(0);
-      winScreen.stop();
-    }
-    break;
-
-  case 7:
-    //failure sound
-    resetSound.play();
-    resetScreen.play();
-    image(resetScreen, 0, 0);
-    gameState = 8;
-    break;
-
-  case 8:
-    //failure screen
-    image(resetScreen, 0, 0);
-    if (resetScreen.time()+.05 >= resetScreen.duration()) {
-      resetScreen.jump(0);
-      resetScreen.stop();
-      gameState = 10;
-    }
-    break;
-
-  case 10:
-    noStroke();
-    fill(0, bgDimmer);
-    bgDimmer += 3;
-    rect(0, 0, width, height);
-    if (bgDimmer >= 255) {
-      gameState = 9;
-    }
-    break;
-
-  case 9:
-    //resetting
-    playWinSound = false;
-    bgDimmer = 0;
-    gameState = 0;
-    break;
+boolean isPortActive(String aPort) {
+  String[] m1 = match(aPort, Serial.list()[myPortIndex]);  
+  if (m1 != null ) {
+    return (true);
+  } else {
+    return(false);
   }
 }
