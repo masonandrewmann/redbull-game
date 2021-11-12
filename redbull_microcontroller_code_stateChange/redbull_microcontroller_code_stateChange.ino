@@ -6,9 +6,9 @@
 #define UPPIN 12
 #define DOWNPIN 11
 #define TOP1 8
-#define TOP2 9
+#define TOP2 7
 #define TOP3 6
-#define BOTTOM1 7
+#define BOTTOM1 5
 #define BOTTOM2 4
 #define BOTTOM3 3
 #define RESETPIN 2
@@ -27,6 +27,8 @@ int bottom3;
 int resetbutton;
 boolean equalFlag;
 int incomingByte = 0;
+unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
+unsigned long debounceDelay = 10;    // the debounce time; increase if the output flickers
 
 int interval = 50;
 int targetTime = 0;
@@ -67,44 +69,46 @@ void loop() {
   }
 
   //read inputs
-  for (int i = 0; i < 11; i++) {
-    inputsRead[i] = digitalRead(inputPins[i]);
-    //    Serial.print("array  : ");
-    //    Serial.print(inputsRead[0]);
-    //    Serial.print("left variable: ");
-    //    Serial.print(left);
-    if (inputsRead[0] == 0) inputs[0] = 1; else inputs[0] = 0; // left
-    if (inputsRead[1] == 0) inputs[1] = 1; else inputs[1] = 0; // right
-    // i dont want to take the time to figure how to do this with pointers and variable names so i am doing it in a raw undreadable fashion
-    //int inputsRead[] = {left(0), right(1), up(2), down(3), top1(4), top2(5), top3(6), bottom1(7), bottom2(8), bottom3(9), resetbutton(10)};
-    //    goal: if (up || top1 || bottom1 == 0) inputs[2] = 1; else inputs[2] = 0;
-    if ( !(!(inputsRead[2]) || !(inputsRead[4]) || !(inputsRead[7])) == 0) inputs[2] = 1; else inputs[2] = 0; // having to do my own logical XOR cause all inputs default to 1
-    if (inputsRead[3] == 0) inputs[3] = 1; else inputs[3] = 0; //down
+  if ( millis() > timethrottle) {
+    for (int i = 0; i < 11; i++) {
+      inputsRead[i] = digitalRead(inputPins[i]);
+      if (inputsRead[0] == 0) inputs[0] = 1; else inputs[0] = 0; // left
+      if (inputsRead[1] == 0) inputs[1] = 1; else inputs[1] = 0; // right
+      // i dont want to take the time to figure how to do this with pointers and variable names so i am doing it in a raw undreadable fashion
+      //int inputsRead[] = {left(0), right(1), up(2), down(3), top1(4), top2(5), top3(6), bottom1(7), bottom2(8), bottom3(9), resetbutton(10)};
+      //    goal: if (up || top1 || bottom1 == 0) inputs[2] = 1; else inputs[2] = 0;
+      if ( !(!(inputsRead[2]) || !(inputsRead[4]) || !(inputsRead[7])) == 0) inputs[2] = 1; else inputs[2] = 0; // having to do my own logical XOR cause all inputs default to 1
+      if (inputsRead[3] == 0) inputs[3] = 1; else inputs[3] = 0; //down
 
-    //    if (top2 || top3 == 0) inputs[2] = 1; else inputs[3] = 0;
-    if ( !(!(inputsRead[5]) || !(inputsRead[6]) ) == 0) inputs[4] = 1; else inputs[4] = 0; // kick
-    //    if (bottom2 || bottom3 == 0) inputs[2] = 1; else inputs[3] = 0;
-    if ( !(!(inputsRead[8]) || !(inputsRead[9]) ) == 0) inputs[5] = 1; else inputs[5] = 0; // punch
-    if (inputsRead[10] == 0) inputs[6] = 1; else inputs[6] = 0; //reset
+      //    if (top2 || top3 == 0) inputs[2] = 1; else inputs[3] = 0;
+      if ( !(!(inputsRead[5]) || !(inputsRead[6]) ) == 0) inputs[4] = 1; else inputs[4] = 0; // kick
+      //    if (bottom2 || bottom3 == 0) inputs[2] = 1; else inputs[3] = 0;
+      if ( !(!(inputsRead[8]) || !(inputsRead[9]) ) == 0) inputs[5] = 1; else inputs[5] = 0; // punch
+      if (inputsRead[10] == 0) inputs[6] = 1; else inputs[6] = 0; //reset
 
-    if (inputsRaw[i] == 1) inputsRaw[i] = 0; // flipping the bit
-    else if (inputsRaw[i] == 0) inputsRaw[i] = 1; // flipping the bit
-  }
-  equalFlag = checkArrays(inputs, prevInputs, 7);
-  if (!equalFlag) {
-    //begin transmission
-    for (int i = 0; i < 7; i++) {
-      Serial.print(inputs[i]);
-      Serial.print("a");
+      if (inputsRaw[i] == 1) inputsRaw[i] = 0; // flipping the bit
+      else if (inputsRaw[i] == 0) inputsRaw[i] = 1; // flipping the bit
     }
-    //    Serial.print("\n");
-    Serial.print('k'); // line ending delimiter
-    //end of transmission
+    equalFlag = checkArrays(inputs, prevInputs, 7);
+    if (!equalFlag) {
+      //begin transmission
+      for (int i = 0; i < 7; i++) {
+        Serial.print(inputs[i]);
+        Serial.print("a");
+      }
+      //    Serial.print("\n");
+      Serial.print('k'); // line ending delimiter
+      //end of transmission
+      delay(5);
+    }
+
+
+    for ( int i = 0 ; i < 7 ; ++i ) {
+      prevInputs[i] = inputs[i];
+    }
+    timethrottle = millis() + time_del;
   }
 
-  for ( int i = 0 ; i < 7 ; ++i ) {
-    prevInputs[i] = inputs[i];
-  }
 }
 
 
