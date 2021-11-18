@@ -99,7 +99,7 @@ void loop() {
       //    Serial.print("\n");
       Serial.print('k'); // line ending delimiter
       //end of transmission
-      delay(8);
+      delay(0);
     }
 
 

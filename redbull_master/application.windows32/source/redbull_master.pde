@@ -1,9 +1,12 @@
-import processing.video.*; //<>// //<>// //<>//
+import processing.video.*; //<>// //<>// //<>// //<>//
 import processing.serial.*;
 import processing.sound.*;
 ///check to make sure the serial port is the right one
 int myPortIndex = 0; //Set for your desired port.
 String portName;
+Logger logger = new Logger(sketchPath("errorLog.log"));
+Object lock = new Object();
+
 
 //fetching input data from microcontroller
 Serial myPort;  // Create object from Serial class
@@ -16,6 +19,7 @@ int comboSigTime = 0;
 int comboSigTimeout = 6000;
 boolean comboSent = false;
 String serialString;
+String serialStringCopy;
 boolean serialReceived = false;
 
 //font for timer
@@ -72,19 +76,6 @@ float bgDimmer = 0;
 
 int timeLimit = 40; //seconds allowed
 
-
-
-void serialEvent(Serial p) {
-  try {
-    println("trying");
-    serialString = p.readString();
-    serialReceived = true;
-  }
-  catch (RuntimeException ex) {
-    println("exception in serialevent");
-    ex.printStackTrace();
-  }
-}
 
 void loadAssets() {
   //load the MP4s
@@ -168,72 +159,8 @@ void movieEvent(Movie m) {
   m.read();
 }
 
-//void keyPressed() {
-//  if (gameState == 1) {
-//    gameState = 2;
-//  }
-
-//  if (key == 'z') {
-//    println("punch");
-//    inputs[4] = 1;
-//  } else if (key == 'x') {
-//    inputs[5] = 1;
-//    println("kick");
-//  } else if (key == 'r') {
-//    gameState = 7;
-//  }
-//  if (key == CODED) {
-//    if (keyCode == LEFT) {
-//      inputs[0] = 1;
-//    }
-//    if (keyCode == RIGHT) {
-//      inputs[1] = 1;
-//    }
-//    if (keyCode == UP) {
-//      inputs[2] = 1;
-//    }
-//    if (keyCode == DOWN) {
-//      inputs[3] = 1;
-//    }
-//  }
-//}
-
-//void keyReleased() {
-//  if (key == 'z') {
-//    println("punch");
-//    inputs[4] = 0;
-//    fighter.punchAllow = true;
-//    fighter.punching = false;
-//  } else if (key == 'x') {
-//    inputs[5] = 0;
-//    println("kick");
-//    fighter.kickAllow = true;
-//    fighter.kicking = false;
-//  }
-
-//  if (key == CODED) {
-//    if (keyCode == LEFT) {
-//      inputs[0] = 0;
-//      fighter.inputsAllow[0] = true;
-//    }
-//    if (keyCode == RIGHT) {
-//      inputs[1] = 0;
-//      fighter.inputsAllow[1] = true;
-//    }
-//    if (keyCode == UP) {
-//      inputs[2] = 0;
-//      fighter.inputsAllow[2] = true;
-//      fighter.jumpAllow = true;
-//    }
-//    if (keyCode == DOWN) {
-//      inputs[3] = 0;
-//      fighter.inputsAllow[3] = true;
-//    }
-//  }
-//}
-
 void readTeensy() {
-  //println("readTeensy");
+  println("readTeensy");
   //read inputs from arduino
   //if ( myPort.available() > 0)
   //{  // If data is available,
@@ -252,46 +179,52 @@ void readTeensy() {
   //  }
   //}
 
-
-  if (serialReceived) {
-    serialString = serialString.trim();
-    if (serialString.length() == 15) {
-      list = split(serialString, "a");
-      for (int i = 0; i < 7; i++) {
-        prevInputs[i] = inputs[i];
-        inputs[i] = Integer.parseInt(list[i]);
+  synchronized(lock) {
+    serialStringCopy = serialString;
+    serialString = "";
+    if (serialReceived) {
+      serialStringCopy = serialStringCopy.trim();
+      print("serialstringCopylength: ");
+      println(serialStringCopy.length());
+      if (serialStringCopy.length() == 15) {
+        print("serialstringCopy: ");
+        println(serialStringCopy);
+        list = split(serialStringCopy, "a");
+        for (int i = 0; i < 7; i++) {
+          prevInputs[i] = inputs[i];
+          inputs[i] = Integer.parseInt(list[i]);
+        }
+      }
+      serialReceived = false;
+    }
+    println(inputs);
+    println(serialStringCopy);
+    for (int i = 0; i < 7; i++) {
+      if (inputs[i] == 1 && prevInputs[i] == 0) {
+        teensyKeyPressed(i);
+      } else if (inputs[i] == 0 && prevInputs[i] == 1) {
+        teensyKeyReleased(i);
       }
     }
-    serialReceived = false;
-  }
-  println(inputs);
-  println(serialString);
-
-  for (int i = 0; i < 7; i++) {
-    if (inputs[i] == 1 && prevInputs[i] == 0) {
-      teensyKeyPressed(i);
-    } else if (inputs[i] == 0 && prevInputs[i] == 1) {
-      teensyKeyReleased(i);
+    //if winning combo has been done, send signal to arduino to release the drink
+    if (gameState == 6 && !comboSent) {
+      int i =0;
+      while (i< 2) {
+        myPort.clear();
+        myPort.write("c");
+        comboSent = true;
+        comboSigTime = millis() + comboSigTimeout;
+        println("sending c to teensy");
+        i++;
+      }
     }
-  }
-  //if winning combo has been done, send signal to arduino to release the drink
-  if (gameState == 6 && !comboSent) {
-    int i =0;
-    while (i< 2) {
-      myPort.clear();
-      myPort.write("c");
-      comboSent = true;
-      comboSigTime = millis() + comboSigTimeout;
-      println("sending c to teensy");
-      i++;
-    }
-  }
 
-  if (millis() > comboSigTime) comboSent = false;
-  myPort.clear();
-  //print("has the combo been sent?");
-  //println(comboSent);
-  println("end of readTeensy");
+    if (millis() > comboSigTime) comboSent = false;
+    myPort.clear();
+    //print("has the combo been sent?");
+    //println(comboSent);
+    println("end of readTeensy");
+  }
 }
 
 //Replicating functionality of builtin keyPressed() function for serial data from teensy
@@ -304,30 +237,6 @@ void teensyKeyPressed(int code) {
   if (code == 6) {
     gameState = 0;
   }
-
-  //  if (code == 'z'){
-  //    println("punch");
-  //    inputs[4] = 1;
-  //  } else if (key == 'x'){
-  //    inputs[5] = 1;
-  //    println("kick");
-  //  } else if (key == 'r'){
-  //    gameState = 7;
-  //  }
-  //  if (key == CODED) {
-  //    if (keyCode == LEFT){
-  //      inputs[0] = 1;
-  //    }
-  //    if (keyCode == RIGHT){
-  //      inputs[1] = 1;
-  //    }
-  //    if (keyCode == UP){
-  //      inputs[2] = 1;
-  //    }
-  //    if (keyCode == DOWN){
-  //      inputs[3] = 1;
-  //    }
-  //  }
 }
 
 //Replicating functionality of builtin keyPressed() function for serial data from teensy
@@ -359,15 +268,27 @@ void teensyKeyReleased(int code) {
   }
 }
 
+void serialEvent(Serial p) {
+  synchronized(lock) {
+    println("serialEvent");
+    serialString = p.readString();
+    println(serialString);
+    serialReceived = true;
+    if (serialString == null) {
+      serialString = "xxxxxxxxx";
+    }
+    myPort.clear();
+  }
+}
+
 void initSerial () {
   println("init serial");
   try {
     println("trying serial");
     //printArray(Serial.list());
-
     portName = Serial.list()[myPortIndex]; //change the 0 to a 1 or 2 etc. to match your port
-
     myPort = new Serial(this, portName, 9600);
+    myPort.clear();
     //myPort.bufferUntil('\n');
     myPort.bufferUntil(107); // ASCII for 'k'
     serialInited = true;
@@ -381,13 +302,13 @@ void initSerial () {
 }
 
 void setup() {
+  logger.log("program starting up....");
+
   size(1280, 720);
   frameRate(20);
-
   //get font ready
   fightingFont = createFont("FONTS/hollowpoint.ttf", 64);
   textFont(fightingFont);
-
   textSize(200);
   fill(255);
   textAlign(CENTER);
@@ -396,7 +317,6 @@ void setup() {
   textAlign(LEFT);
   //load images, videos and sounds
   loadAssets();
-
   //initialize serial comm
   initSerial();
   bgMusic.loop();
@@ -406,12 +326,11 @@ void setup() {
 
 void draw() {
   if (serialInited) {
-    println(myPort.active());
-
     if (!isPortActive(portName)) {
       println("disconnected!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
     }
     readTeensy();
+    println("right after readTeensy");
     switch (gameState) {
     case 0:
       //call to action sound
@@ -553,6 +472,8 @@ void draw() {
   }
   println("end of draw loop");
 }
+
+
 
 boolean is_movie_finished(Movie m) {
   return m.duration() - m.time() < 0.05;

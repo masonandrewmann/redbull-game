@@ -113,5 +113,5 @@ void loop() {
 
 
   //wait 50 milliseconds so we don't drive ourselves crazy
-//  delay(50);
+  delay(50);
 }
